@@ -41,7 +41,7 @@ public class NumberElement extends ConfigElement
 	@Override
 	public void init() {
 		super.init();
-		textBox = addChild(new CarbonEditBox(font, 0, 0, isArray() ? 150 : 70, 18), isArray() ? GuiAlign.CENTER : GuiAlign.RIGHT, 1);
+		textBox = addChild(new CarbonEditBox(font, 0, 0, isArray() ? 150 : (isCompound() ? 103 : 70), 18), isArray() ? GuiAlign.CENTER : GuiAlign.RIGHT, 1);
 		textBox.setValue(value.get());
 		textBox.setResponder(T -> {
 			textBox.setTextColor(0xE0E0E0);

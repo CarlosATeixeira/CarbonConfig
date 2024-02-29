@@ -43,12 +43,12 @@ public class EnumElement extends ConfigElement
 	@Override
 	public void init() {
 		super.init();
-		if(!hasSuggestions() || isArray()) {
+		if(!hasSuggestions() || isArray() || isCompound()) {
 			if(this.isArray()) {
-				addChild(new CarbonButton(0, 0, 40, 18, Component.translatable("gui.chunk_pregen.config.edit"), this::onSelect), -12);				
+				addChild(new CarbonButton(0, 0, 40, 18, Component.translatable("gui.carbonconfig.edit"), this::onSelect), -32);				
 			}
 			else {
-				addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.chunk_pregen.config.edit"), this::onPress));
+				addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
 			}
 		}
 	}
@@ -62,7 +62,16 @@ public class EnumElement extends ConfigElement
 	public void render(PoseStack poseStack, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		super.render(poseStack, x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
 		String value = this.value.get();
-		GuiUtils.drawScrollingString(poseStack, font, Component.literal(value), left + width - 235, top, 135, height - 2.75F, GuiAlign.LEFT, -1, 0);
+		if(isCompound()) {
+			int offset = font.width(value) + 135;
+			GuiUtils.drawScrollingString(poseStack, font, Component.literal(value), left + width - offset, top, 135, height - 2.75F, GuiAlign.LEFT, -1, 0);			
+		}
+		else if(isArray()) {
+			GuiUtils.drawScrollingString(poseStack, font, Component.literal(value), left + (canMove() ? 5 : 10), top, 140, height - 2.75F, GuiAlign.LEFT, -1, 0);
+		}
+		else {
+			GuiUtils.drawScrollingString(poseStack, font, Component.literal(value), left - 20, top, 140, height - 2.75F, GuiAlign.LEFT, -1, 0);
+		}
 	}
 	
 	private void onSelect(Button button) {

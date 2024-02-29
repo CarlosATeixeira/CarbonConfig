@@ -42,7 +42,7 @@ public class ColorElement extends ConfigElement
 	@Override
 	public void init() {
 		super.init();
-		textBox = addChild(new CarbonEditBox(font, 0, 0, isArray() ? 130 : 52, 18).setInnerDiff(4), isArray() ? GuiAlign.CENTER : GuiAlign.RIGHT, 1);
+		textBox = addChild(new CarbonEditBox(font, 0, 0, isArray() ? 130 : (isCompound() ? 85 : 52), 18).setInnerDiff(4), isArray() ? GuiAlign.CENTER : GuiAlign.RIGHT, 1);
 		textBox.setValue(value.get());
 		textBox.setResponder(T -> {
 			textBox.setTextColor(0xE0E0E0);
@@ -64,12 +64,12 @@ public class ColorElement extends ConfigElement
 		super.render(poseStack, x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
 		if(isArray()) {
 			GuiComponent.fill(poseStack, left+186, top-1, left+203, top+19, 0xFFA0A0A0);
-			GuiComponent.fill(poseStack, left+187, top, left+202, top+18, Integer.decode(value.get()) | 0xFF000000);
+			GuiComponent.fill(poseStack, left+187, top, left+202, top+18, (int)(Long.decode(value.get()) | 0xFF000000L));
 		}
 		else {
-			int xOff = isCompound() ? 106 : 186;
+			int xOff = isCompound() ? 194 : 186;
 			GuiComponent.fill(poseStack, left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
-			GuiComponent.fill(poseStack, left+xOff+1, top, left+xOff+16, top+18, Integer.decode(value.get()) | 0xFF000000);
+			GuiComponent.fill(poseStack, left+xOff+1, top, left+xOff+16, top+18, (int)(Long.decode(value.get()) | 0xFF000000L));
 		}
 		if(textBox.isMouseOver(mouseX, mouseY) && result != null && !result.getValue()) {
 			owner.addTooltips(Component.literal(result.getError().getMessage()).withStyle(ChatFormatting.RED));

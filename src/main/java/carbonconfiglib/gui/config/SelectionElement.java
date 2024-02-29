@@ -1,5 +1,6 @@
 package carbonconfiglib.gui.config;
 
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.ListSelectionScreen;
@@ -25,16 +26,24 @@ import net.minecraft.network.chat.Component;
 public class SelectionElement extends ConfigElement
 {
 	Button textBox = addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
+	ICompoundNode compound;
+	int index;
 	
 	public SelectionElement(IConfigNode node) {
 		super(node);
 	}
 	
-	public SelectionElement(IConfigNode node, IValueNode value) {
+	public SelectionElement(IConfigNode node, IValueNode value, ICompoundNode compound, int index) {
 		super(node, value);
+		this.compound = compound;
+		this.index = index;
 	}
 	
 	private void onPress(Button button) {
+		if(compound != null) {
+			mc.setScreen(ListSelectionScreen.ofCompoundValue(mc.screen, node, value, compound, index, owner.getCustomTexture()));
+			return;
+		}
 		mc.setScreen(ListSelectionScreen.ofValue(mc.screen, node, value, owner.getCustomTexture()));
 	}
 }

@@ -64,6 +64,16 @@ public class CompoundScreen extends ListScreen
 	}
 	
 	@Override
+	protected int getScrollPadding() {
+		return 184;
+	}
+	
+	@Override
+	protected int getListWidth() {
+		return 360;
+	}
+	
+	@Override
 	protected boolean shouldHaveTooltips() {
 		return true;
 	}
@@ -112,7 +122,7 @@ public class CompoundScreen extends ListScreen
 		List<IValueNode> values = compound.getValues();
 		for(int i = 0,m=type.size();i<m;i++) {
 			if(compound.isForcedSuggestion(i)) {
-				elements.accept(new SelectionElement(entry, values.get(i)));
+				elements.accept(new SelectionElement(entry, values.get(i), compound, i));
 				continue;
 			}
 			ConfigElement element = type.get(i).create(entry, values.get(i));

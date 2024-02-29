@@ -7,9 +7,12 @@ import carbonconfiglib.gui.api.IArrayNode;
 import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.ISuggestionRenderer;
 import carbonconfiglib.gui.api.IValueNode;
+import carbonconfiglib.gui.screen.EditStringScreen;
+import carbonconfiglib.gui.widgets.CarbonButton;
 import carbonconfiglib.gui.widgets.CarbonEditBox;
 import carbonconfiglib.utils.ParseResult;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
@@ -65,6 +68,13 @@ public class RegistryElement extends ConfigElement
 				value.set(T);
 			});
 		}
+		else {
+			addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
+		}
+	}
+	
+	private void onPress(Button button) {
+		mc.setScreen(new EditStringScreen(mc.screen, name, node, value, owner.getCustomTexture()));
 	}
 	
 	@Override
@@ -84,8 +94,10 @@ public class RegistryElement extends ConfigElement
 	public void render(PoseStack poseStack, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		super.render(poseStack, x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
 		if(renderer != null) {
-			Component result = renderer.renderSuggestion(poseStack, value.get(), left + 20, top);
-			if(result != null && mouseX >= left + 20 && mouseX <= left + 40 && mouseY >= top && mouseY <= top + 20) {
+			int xOff = isArray() ? (moveDown.visible || moveUp.visible ? -7 : 1) : width - 150;
+			int yOff = isArray() ? (height / 2) - 8 : (height / 2) - 9;
+			Component result = renderer.renderSuggestion(poseStack, value.get(), left + xOff, top + yOff);
+			if(result != null && mouseX >= left + xOff && mouseX <= left + xOff + 20 && mouseY >= top + yOff && mouseY <= top + yOff + 20) {
 				owner.addTooltips(result);
 			}
 		}

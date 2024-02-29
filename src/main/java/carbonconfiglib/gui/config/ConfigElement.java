@@ -108,7 +108,7 @@ public class ConfigElement extends Element
 		super.init();
 		if(createResetButtons(value)) {
 			if(isArray()) {
-				setReset = addChild(new CarbonIconButton(0, 0, 18, 18, Icon.DELETE, Component.empty(), this::onDeleted).setIconOnly(), -31);
+				setReset = addChild(new CarbonIconButton(0, 0, 18, 18, Icon.DELETE, Component.empty(), this::onDeleted).setIconOnly(), -51);
 				setReset.active = isReset();
 				moveDown = new CarbonHoverIconButton(0, 0, 15, 8, new IconInfo(0, -3, 16, 16), Icon.MOVE_DOWN, Icon.MOVE_DOWN_HOVERED, this::onMoveDown);
 				listeners.add(moveDown);
@@ -147,7 +147,7 @@ public class ConfigElement extends Element
 	@Override
 	public void render(PoseStack poseStack, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		if(renderName() && !isArray()) {
-			renderName(poseStack, left, top, isChanged(), isCompound() ? 80 : 200, height);
+			renderName(poseStack, left, top, isChanged(), getMaxTextWidth(), height);
 			if(!isCompound()) {
 				if(node.requiresReload()) {
 					GuiUtils.drawTextureRegion(poseStack, left-16, top+(height/2)-6, 12, 12, Icon.RELOAD, 16, 16);
@@ -220,6 +220,7 @@ public class ConfigElement extends Element
 			List<Suggestion> suggestions = compound.getValidValues(compoundIndex);
 			return suggestions != null && suggestions.size() > 0;
 		}
+		if(node.isArray()) return false;
 		if(node != null && node.isForcingSuggestions()) return false;
 		List<Suggestion> suggestions = node == null ? null : node.getValidValues();
 		return suggestions != null && suggestions.size() > 0;
@@ -234,6 +235,10 @@ public class ConfigElement extends Element
 	
 	protected int getMaxX(int prevMaxX) {
 		return prevMaxX;
+	}
+	
+	protected int getMaxTextWidth() {
+		return isCompound() ? 190 : 200;
 	}
 	
 	protected boolean isArray() {
@@ -254,6 +259,10 @@ public class ConfigElement extends Element
 		if(!isArray()) return;
 		array.moveUp(indexOf());
 		owner.updateInformation();		
+	}
+	
+	protected boolean canMove() {
+		return isArray() && (canMoveDown() || canMoveUp());
 	}
 	
 	protected boolean canMoveUp() {

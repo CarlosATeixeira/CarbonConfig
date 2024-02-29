@@ -74,6 +74,18 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 		return getValue().getColor() & 0xFFFFFFFF;
 	}
 	
+	public String toHex() {
+		return ColorWrapper.serialize(getValue().getColor());
+	}
+	
+	public String toRGBHex() {
+		return ColorWrapper.serializeRGB(getValue().getColor() & 0xFFFFFF);
+	}
+	
+	public String toRGBAHex() {
+		return ColorWrapper.serialize(getValue().getColor() & 0xFFFFFFFF);
+	}
+	
 	protected String serializedValue(MultilinePolicy policy, ColorWrapper value) {
 		return ColorWrapper.serialize(value.getColor());
 	}
@@ -118,6 +130,10 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 		public static ParseResult<Integer> parseInt(String value) {
 			try { return ParseResult.success(Long.decode(value).intValue()); }
 			catch (Exception e) { return ParseResult.error(value, e, "Couldn't parse Colour"); }
+		}
+		
+		public static String serializeRGB(long color) {
+			return "0x"+(Long.toHexString(0xFF000000L | (color & 0xFFFFFFL)).substring(2));
 		}
 		
 		public static String serialize(long color) {

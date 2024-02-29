@@ -52,7 +52,7 @@ public interface IConfigNode
 		MutableComponent comp = Component.empty();
 		for(String s : name.split("\\-|\\_|(?<!^)(?=[A-Z][a-z])|(?<!(^|[A-Z]))(?=[A-Z])")) {
 			String first = Character.toString(s.charAt(0));
-			comp.append(s.replaceFirst(first, first.toUpperCase())).append(" ");
+			comp.append(s.replaceFirst(first, first.toUpperCase()).trim()).append(" ");
 		}
 		return comp;
 	}

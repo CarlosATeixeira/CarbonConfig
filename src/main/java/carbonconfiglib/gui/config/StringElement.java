@@ -47,7 +47,7 @@ public class StringElement extends ConfigElement
 	{
 		super.init();
 		if(this.isArray()) {
-			edit = addChild(new CarbonEditBox(font, 0, 0, 150, 18), GuiAlign.CENTER, 0);
+			edit = addChild(new CarbonEditBox(font, 0, 0, 180, 18), GuiAlign.CENTER, 0);
 			edit.setValue(value.get());
 			edit.setResponder(T -> {
 				edit.setTextColor(0xE0E0E0);
@@ -60,7 +60,7 @@ public class StringElement extends ConfigElement
 			});
 		}
 		else {
-			addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
+			addChild(new CarbonButton(0, 0, isCompound() ? 105 : 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
 		}
 	}
 	

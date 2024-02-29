@@ -234,7 +234,7 @@ public abstract class ListSelectionScreen extends ListScreen
 		public void render(PoseStack poseStack, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 			ISuggestionRenderer renderer = getRenderer();
 			if(renderer != null) {
-				Component comp = renderer.renderSuggestion(poseStack, suggestion.getValue(), left, top);
+				Component comp = renderer.renderSuggestion(poseStack, suggestion.getValue(), left, top + (height / 2) - 8);
 				if(comp != null && mouseX >= left && mouseX <= left + 20 && mouseY >= top && mouseY <= top + 20) {
 					owner.addTooltips(comp);
 				}
