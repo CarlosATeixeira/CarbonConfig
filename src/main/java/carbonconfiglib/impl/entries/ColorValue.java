@@ -7,10 +7,11 @@ import carbonconfiglib.api.buffer.IReadBuffer;
 import carbonconfiglib.api.buffer.IWriteBuffer;
 import carbonconfiglib.config.ConfigEntry.BasicConfigEntry;
 import carbonconfiglib.impl.entries.ColorValue.ColorWrapper;
-import carbonconfiglib.utils.IEntryDataType;
-import carbonconfiglib.utils.IEntryDataType.SimpleDataType;
 import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
+import carbonconfiglib.utils.structure.IStructuredData;
+import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
+import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 
 /**
@@ -58,8 +59,8 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 	}
 	
 	@Override
-	public IEntryDataType getDataType() {
-		return SimpleDataType.ofVariant(ColorWrapper.class);
+	public IStructuredData getDataType() {
+		return SimpleData.variant(EntryDataType.INTEGER, ColorWrapper.class);
 	}
 	
 	public int get() {
@@ -116,7 +117,8 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 		return ParseResult.success(new ColorValue(key, result.getValue(), comment));
 	}
 	
-	public static class ColorWrapper {
+	public static class ColorWrapper extends Number {
+		private static final long serialVersionUID = -6737187197596158253L;
 		int color;
 		
 		public ColorWrapper(int color) {
@@ -126,6 +128,21 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 		public int getColor() {
 			return color;
 		}
+		
+		public int intValue() { return color; }
+		public long longValue() { return (long)color; }
+		public float floatValue() { return (float)color; }
+		public double doubleValue() { return (double)color; }
+		
+		public String serialize() {
+			return serialize(color);
+		}
+		
+		public static ParseResult<ColorWrapper> parse(String value) {
+			try { return ParseResult.success(new ColorWrapper(Long.decode(value).intValue())); }
+			catch (Exception e) { return ParseResult.error(value, e, "Couldn't parse Colour"); }
+		}
+		
 		
 		public static ParseResult<Integer> parseInt(String value) {
 			try { return ParseResult.success(Long.decode(value).intValue()); }

@@ -8,19 +8,19 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.google.common.collect.Iterables;
 
 import carbonconfiglib.api.ISuggestionProvider.Suggestion;
-import carbonconfiglib.gui.api.DataType;
-import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IConfigNode;
-import carbonconfiglib.gui.api.IValueNode;
+import carbonconfiglib.gui.api.INode;
 import carbonconfiglib.gui.impl.forge.ForgeDataType.EnumDataType;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
+import carbonconfiglib.impl.ReloadMode;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
+import speiger.src.collections.objects.lists.ObjectArrayList;
+import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -45,7 +45,7 @@ public class ForgeLeaf implements IConfigNode
 	ForgeDataType<?> type;
 	boolean isArray;
 	ForgeValue value;
-	ForgeArrayValue array;
+	ForgeArray array;
 	Component tooltip;
 	
 	public ForgeLeaf(ForgeConfigSpec spec, ConfigValue<?> data, CommentedConfig config) {
@@ -77,50 +77,64 @@ public class ForgeLeaf implements IConfigNode
 	public List<IConfigNode> getChildren() { return null; }
 	
 	@Override
-	public IValueNode asValue() {
-		if(isArray()) return null;
-		if(value == null) value = new ForgeValue(data.getPath(), config, spec, type);
+	public INode asNode() {
+		if(isArray) {
+			if(array == null) array = new ForgeArray(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrent(), getDefault(), () -> ObjectLists.empty(), type::parse, this::save);
+			return array;
+		}
+		if(value == null) value = new ForgeValue(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrent(type), getDefault(type), this::getSuggestions, type::parse, this::save);
 		return value;
 	}
 	
-	@Override
-	public IArrayNode asArray() {
-		if(!isArray()) return null;
-		if(array == null) array = new ForgeArrayValue(data.getPath(), config, spec, ForgeDataType.STRING);
-		return array;
+	@SuppressWarnings("unchecked")
+	private List<String> getDefault() {
+		return new ObjectArrayList<>((List<String>)spec.getDefault());
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<String> getCurrent() {
+		return new ObjectArrayList<>((List<String>)config.get(data.getPath()));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> String getDefault(ForgeDataType<T> type) {
+		return type.serialize((T)spec.getDefault());
+	}
+	
+	private <T> String getCurrent(ForgeDataType<T> type) {
+		return type.isEnum() && String.class.equals(config.get(data.getPath()).getClass()) ? config.get(data.getPath()) : type.serialize(config.get(data.getPath()));
+	}
+	
+	private List<Suggestion> getSuggestions() {
+		return type instanceof EnumDataType ? ((EnumDataType<?>)type).getSuggestions(spec) : ObjectLists.empty();
+	}
+	
+	private void save(String value) {
+		config.set(data.getPath(), type.parse(value).getValue());
+	}
+	
+	private void save(List<String> values) {
+		config.set(data.getPath(), values);
 	}
 	
 	@Override
-	public ICompoundNode asCompound() { return null; }
+	public StructureType getDataStructure() { return isArray ? StructureType.LIST : StructureType.SIMPLE; }
 	
-	@Override
-	public List<DataType> getDataType() {
-		if(isArray) return ObjectLists.singleton(DataType.STRING);
-		if(type == null) {
-			return null;
-		}
-		return ObjectLists.singleton(type.getDataType());
-	}
- 	
-	@Override
-	public List<Suggestion> getValidValues() {
-		return type instanceof EnumDataType ? ((EnumDataType<?>)type).getSuggestions(spec) : ObjectLists.emptyList();
-	}
-	
-	@Override
-	public boolean isForcingSuggestions() {
-		return type instanceof EnumDataType;
-	}
-	
-	@Override
-	public boolean isArray() { return isArray; }
 	@Override
 	public boolean isLeaf() { return true; }
 	@Override
 	public boolean isRoot() { return false; }
 	
 	@Override
-	public boolean isChanged() { return (value != null && value.isChanged()) || (array != null && array.isChanged()); }
+	public boolean isChanged() {
+		if(value != null) {
+			if(value.isChanged()) return true;
+		}
+		if(array != null) {
+			if(array.isChanged()) return true;
+		}
+		return false;
+	}
 	
 	@Override
 	public void save() {
@@ -136,14 +150,9 @@ public class ForgeLeaf implements IConfigNode
 	
 	@Override
 	public void setDefault() {
-		if(isArray()) {
-			if(array == null) asArray();
-			array.setDefault();
-		}
-		else {
-			if(value == null) asValue();
-			value.setDefault();
-		}
+		asNode();
+		if(isArray) array.setDefault();
+		else value.setDefault();
 	}
 	
 	@Override

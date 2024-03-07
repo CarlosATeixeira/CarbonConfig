@@ -2,7 +2,7 @@ package carbonconfiglib.gui.api;
 
 import java.util.List;
 
-import carbonconfiglib.api.ISuggestionProvider.Suggestion;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -24,14 +24,9 @@ import net.minecraft.network.chat.MutableComponent;
 public interface IConfigNode
 {
 	public List<IConfigNode> getChildren();
-	public IValueNode asValue();
-	public IArrayNode asArray();
-	public ICompoundNode asCompound();
-	public List<DataType> getDataType();
-	public List<Suggestion> getValidValues();
-	public boolean isForcingSuggestions();
+	public INode asNode();
+	public StructureType getDataStructure();
 	
-	public boolean isArray();
 	public boolean isLeaf();
 	public boolean isRoot();
 	
@@ -51,8 +46,9 @@ public interface IConfigNode
 	public static MutableComponent createLabel(String name) {
 		MutableComponent comp = Component.empty();
 		for(String s : name.split("\\-|\\_|(?<!^)(?=[A-Z][a-z])|(?<!(^|[A-Z]))(?=[A-Z])")) {
-			String first = Character.toString(s.charAt(0));
-			comp.append(s.replaceFirst(first, first.toUpperCase()).trim()).append(" ");
+			if(s.isEmpty()) continue;
+			String first = Character.toString(Character.toLowerCase(s.charAt(0)));
+			comp.append(s.toLowerCase().replaceFirst(first, first.toUpperCase()).trim()).append(" ");
 		}
 		return comp;
 	}

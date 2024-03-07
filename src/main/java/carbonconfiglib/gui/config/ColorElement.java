@@ -3,7 +3,7 @@ package carbonconfiglib.gui.config;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.widgets.CarbonEditBox;
 import carbonconfiglib.utils.ParseResult;
@@ -31,12 +31,16 @@ public class ColorElement extends ConfigElement
 	CarbonEditBox textBox;
 	ParseResult<Boolean> result;
 	
-	public ColorElement(IConfigNode node, IValueNode value) {
-		super(node, value);
+	public ColorElement(IValueNode value) {
+		super(value);
 	}
 	
-	public ColorElement(IConfigNode node, IArrayNode array, int index) {
-		super(node, array, index);
+	public ColorElement(IArrayNode array, IValueNode value) {
+		super(array, value);
+	}
+	
+	public ColorElement(ICompoundNode compound, IValueNode value) {
+		super(compound, value);
 	}
 	
 	@Override

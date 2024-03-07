@@ -2,6 +2,7 @@ package carbonconfiglib.examples;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -14,10 +15,10 @@ import carbonconfiglib.config.ConfigSection;
 import carbonconfiglib.config.ConfigSettings;
 import carbonconfiglib.impl.PerWorldProxy;
 import carbonconfiglib.impl.entries.ColorValue.ColorWrapper;
-import carbonconfiglib.utils.Helpers;
-import carbonconfiglib.utils.IEntryDataType.CompoundDataType;
-import carbonconfiglib.utils.IEntryDataType.EntryDataType;
 import carbonconfiglib.utils.ParseResult;
+import carbonconfiglib.utils.ParsedCollections.ParsedMap;
+import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
+import carbonconfiglib.utils.structure.StructureCompound.CompoundBuilder;
 import net.minecraft.world.item.DyeColor;
 
 public class FullTestCase
@@ -113,16 +114,24 @@ public class FullTestCase
 			this.value = value;
 		}
 		
+		@Override
+		public boolean equals(Object obj) {
+			if(obj instanceof ExampleValue) {
+				ExampleValue other = (ExampleValue)obj;
+				return Objects.equals(other.name, name) && year == other.year && Double.compare(fluffyness, other.fluffyness) == 0 && favoriteColour == other.favoriteColour && color == other.color && value == other.value;
+			}
+			return false;
+		}
+		
 		public static IConfigSerializer<ExampleValue> createSerializer() {
-			CompoundDataType type = new CompoundDataType();
-			type.with("Name", EntryDataType.STRING);
-			type.withSuggestion("Year", EntryDataType.INTEGER, ISuggestionProvider.array(Suggestion.value("2000"), Suggestion.value("2005"), Suggestion.value("2017"), Suggestion.value("2023")));
-			type.with("Fluffyness", EntryDataType.DOUBLE);
-			type.withSuggestion("Color", EntryDataType.INTEGER, ISuggestionProvider.array(Suggestion.namedTypeValue("Red", "0xFF0000", ColorWrapper.class), Suggestion.namedTypeValue("Green", "0x00FF00", ColorWrapper.class), Suggestion.namedTypeValue("Blue", "0x0000FF", ColorWrapper.class), Suggestion.namedTypeValue("Black", "0x000000", ColorWrapper.class), Suggestion.namedTypeValue("White", "0xFFFFFF", ColorWrapper.class)));
-			type.withSuggestion("Dye", EntryDataType.ENUM, ISuggestionProvider.enums(DyeColor.class));
-			type.with("Valid", EntryDataType.BOOLEAN);
-			type.forceSuggestions("Dye");
-			return IConfigSerializer.noSync(type, new ExampleValue(), ExampleValue::parse, ExampleValue::serialize);
+			CompoundBuilder builder = new CompoundBuilder();
+			builder.simple("Name", EntryDataType.STRING).setComments("Testing my ", "New Line Comment").finish();
+			builder.simple("Year", EntryDataType.INTEGER).addSuggestions(ISuggestionProvider.array(Suggestion.value("2000"), Suggestion.value("2005"), Suggestion.value("2017"), Suggestion.value("2023"))).finish();
+			builder.simple("Fluffyness", EntryDataType.DOUBLE).finish();
+			builder.variants("Color", EntryDataType.INTEGER, ColorWrapper.class, ColorWrapper::parse, ColorWrapper::serialize).addSuggestions(ISuggestionProvider.array(Suggestion.namedTypeValue("Red", "0xFF0000", ColorWrapper.class), Suggestion.namedTypeValue("Green", "0x00FF00", ColorWrapper.class), Suggestion.namedTypeValue("Blue", "0x0000FF", ColorWrapper.class), Suggestion.namedTypeValue("Black", "0x000000", ColorWrapper.class), Suggestion.namedTypeValue("White", "0xFFFFFF", ColorWrapper.class))).finish();
+			builder.enums("Dye", DyeColor.class).forceSuggestions(true).finish();
+			builder.simple("Valid", EntryDataType.BOOLEAN).finish();
+			return IConfigSerializer.noSync(builder.build(), new ExampleValue(), ExampleValue::parse, ExampleValue::serialize);
 		}
 		
 		public static List<ExampleValue> createExample() {
@@ -132,25 +141,34 @@ public class FullTestCase
 		/*
 		 * Parse Function that parses the DataType.
 		 */
-		public static ParseResult<ExampleValue> parse(String[] value) {
-			if(value.length != 6) return ParseResult.error(Helpers.mergeCompound(value), "6 Elements are required");
-			if(value[0] == null || value[0].trim().isEmpty()) return ParseResult.error(value[0], "Value [Name] is not allowed to be null/empty");
-			ParseResult<Integer> year = Helpers.parseInt(value[1]);
-			if(year.hasError()) return year.onlyError("Couldn't parse [Year] argument");
-			ParseResult<Double> fluffyness = Helpers.parseDouble(value[2]);
-			if(fluffyness.hasError()) return fluffyness.onlyError("Couldn't parse [Fluffyness] argument");
-			ParseResult<Integer> color = ColorWrapper.parseInt(value[3]);
-			if(color.hasError()) return color.onlyError("Couldn't parse [Colour] argument");
-			ParseResult<DyeColor> dye = Helpers.parseEnum(DyeColor.class, value[4]);
-			if(dye.hasError()) return dye.onlyError("Couldn't parse [Dye] argument");
-			return ParseResult.success(new ExampleValue(value[0], year.getValue(), fluffyness.getValue(), color.getValue(), dye.getValue(), Boolean.parseBoolean(value[5])));
+		public static ParseResult<ExampleValue> parse(ParsedMap map) {
+			ParseResult<String> name = map.getOrError("Name", String.class);
+			if(name.hasError()) return name.onlyError();
+			ParseResult<Integer> year = map.getOrError("Year", Integer.class);
+			if(year.hasError()) return year.onlyError();
+			ParseResult<Double> fluffyness = map.getOrError("Fluffyness", Double.class);
+			if(fluffyness.hasError()) return fluffyness.onlyError();
+			ParseResult<ColorWrapper> color = map.getOrError("Color", ColorWrapper.class);
+			if(color.hasError()) return color.onlyError();
+			ParseResult<DyeColor> dye = map.getOrError("Dye", DyeColor.class);
+			if(dye.hasError()) return dye.onlyError();
+			ParseResult<Boolean> valid = map.getOrError("Valid", Boolean.class);
+			if(valid.hasError()) return valid.onlyError();
+			return ParseResult.success(new ExampleValue(name.getValue(), year.getValue(), fluffyness.getValue(), color.map(ColorWrapper::getColor), dye.getValue(), valid.getValue()));
 		}
 		
 		/*
 		 * Serialization function that turns the DataType into a string. 
 		 */
-		public String[] serialize() {
-			return new String[] {name, Integer.toString(year), Double.toString(fluffyness), ColorWrapper.serialize(favoriteColour), color.name(), Boolean.toString(value)};
+		public ParsedMap serialize() {
+			ParsedMap map = new ParsedMap();
+			map.put("Name", name);
+			map.put("Year", year);
+			map.put("Fluffyness", fluffyness);
+			map.put("Color", new ColorWrapper(favoriteColour));
+			map.put("Dye", color);
+			map.put("Valid", value);
+			return map;
 		}
 	}
 }
