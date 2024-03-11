@@ -138,7 +138,7 @@ public class ArrayScreen extends ListScreen
 		int size = array.size();
 		array.createNode();
 		if(array.getSuggestions().size() > 0) {
-			ListSelectionScreen screen = new ListSelectionScreen(prev, array.get(size), innerType == StructureType.COMPOUND ? NodeSupplier.ofCompound(array) : NodeSupplier.ofValue(), getCustomTexture());
+			ListSelectionScreen screen = new ListSelectionScreen(this, array.get(size), innerType == StructureType.COMPOUND ? NodeSupplier.ofCompound(array) : NodeSupplier.ofValue(), getCustomTexture());
 			screen.withListener(() -> postCreate(size, true), () -> array.removeNode(size)).disableAbortWarning();
 			minecraft.setScreen(screen);
 			return;

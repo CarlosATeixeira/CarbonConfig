@@ -20,12 +20,12 @@ import carbonconfiglib.utils.structure.StructureList.ListData;
 import net.minecraft.network.chat.Component;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 import speiger.src.collections.objects.lists.ObjectList;
-import speiger.src.collections.objects.utils.ObjectLists;
 import speiger.src.collections.utils.Stack;
 
 public class CarbonArray implements IArrayNode, IValueActions
 {
 	IReloadMode mode;
+	ListData data;
 	IStructuredData inner;
 	Component name;
 	Component tooltip;
@@ -40,6 +40,7 @@ public class CarbonArray implements IArrayNode, IValueActions
 	
 	public CarbonArray(IReloadMode mode, ListData data, Component name, Component tooltip, String currentValue, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Supplier<List<Suggestion>> suggestions, Consumer<String> saveAction) {
 		this.mode = mode;
+		this.data = data;
 		this.inner = data.getFormat();
 		this.name = name;
 		this.tooltip = tooltip;
@@ -61,9 +62,9 @@ public class CarbonArray implements IArrayNode, IValueActions
 	
 	protected IValueActions addEntry(String value, String defaultValue, int index) {
 		switch(inner.getDataType()) {
-			case COMPOUND: return new CarbonCompound(mode, inner.asCompound(), name.copy().append(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> ObjectLists.empty(), T -> save(T, index));
-			case LIST: return new CarbonArray(mode, inner.asList(), name.copy().append(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> ObjectLists.empty(), T -> save(T, index));
-			case SIMPLE: return new CarbonValue(mode, name.copy().append(" "+index+":"), tooltip, DataType.bySimple(inner.asSimple()), false, () -> ObjectLists.empty(), value, defaultValue, this::isValid, T -> save(T, index));
+			case COMPOUND: return new CarbonCompound(mode, inner.asCompound(), name.copy().append(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> data.getSuggestions(T -> true), T -> save(T, index));
+			case LIST: return new CarbonArray(mode, inner.asList(), name.copy().append(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> data.getSuggestions(T -> true), T -> save(T, index));
+			case SIMPLE: return new CarbonValue(mode, name.copy().append(" "+index+":"), tooltip, DataType.bySimple(inner.asSimple()), false, () -> data.getSuggestions(T -> true), value, defaultValue, this::isValid, T -> save(T, index));
 			default: return null;
 		}
 	}
