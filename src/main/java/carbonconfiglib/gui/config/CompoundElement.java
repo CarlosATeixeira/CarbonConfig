@@ -2,7 +2,6 @@ package carbonconfiglib.gui.config;
 
 import carbonconfiglib.gui.api.IArrayNode;
 import carbonconfiglib.gui.api.ICompoundNode;
-import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.CompoundScreen;
 import carbonconfiglib.gui.widgets.CarbonButton;
@@ -30,13 +29,18 @@ public class CompoundElement extends ConfigElement
 	Button textBox;
 	ICompoundNode compound;
 	
-	public CompoundElement(IConfigNode node) {
-		super(node);
-		compound = node.asCompound();
+	public CompoundElement(ICompoundNode compound) {
+		super(compound.getName());
+		this.compound = compound;
 	}
 	
-	public CompoundElement(IConfigNode node, IArrayNode parent, ICompoundNode compound) {
-		super(node, parent);
+	public CompoundElement(IArrayNode array, ICompoundNode compound) {
+		super(array, compound.getName());
+		this.compound = compound;
+	}
+	
+	public CompoundElement(ICompoundNode owner, ICompoundNode compound) {
+		super(owner, compound.getName());
 		this.compound = compound;
 	}
 	
@@ -47,7 +51,7 @@ public class CompoundElement extends ConfigElement
 	}
 	
 	private void onPress(Button button) {
-		mc.setScreen(new CompoundScreen(node, compound, mc.screen, owner.getCustomTexture()));
+		mc.setScreen(new CompoundScreen(compound, mc.screen, owner.getCustomTexture()));
 	}
 	
 	@Override

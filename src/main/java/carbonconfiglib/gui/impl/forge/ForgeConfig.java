@@ -79,6 +79,11 @@ public class ForgeConfig implements IModConfig
 		entries = collect();
 	}
 	
+	@Override
+	public boolean canCreateConfigs() { return false; }
+	@Override
+	public boolean createConfig(Path path) { return false; }
+	
 	private ForgeConfigSpec getSpec(IConfigSpec<?> spec) {
 		//Mod to fix Night config fixes
 		if(spec instanceof ForgeConfigSpec) {
