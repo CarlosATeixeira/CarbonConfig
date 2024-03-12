@@ -2,10 +2,9 @@ package carbonconfiglib.gui.api;
 
 import java.util.List;
 
-import carbonconfiglib.api.ISuggestionProvider.Suggestion;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -25,14 +24,9 @@ import net.minecraft.util.text.TextComponent;
 public interface IConfigNode
 {
 	public List<IConfigNode> getChildren();
-	public IValueNode asValue();
-	public IArrayNode asArray();
-	public ICompoundNode asCompound();
-	public List<DataType> getDataType();
-	public List<Suggestion> getValidValues();
-	public boolean isForcingSuggestions();
+	public INode asNode();
+	public StructureType getDataStructure();
 	
-	public boolean isArray();
 	public boolean isLeaf();
 	public boolean isRoot();
 	
@@ -49,8 +43,8 @@ public interface IConfigNode
 	public ITextComponent getTooltip();
 	
 	
-	public static TextComponent createLabel(String name) {
-		TextComponent comp = new StringTextComponent("");
+	public static StringTextComponent createLabel(String name) {
+		StringTextComponent comp = new StringTextComponent("");
 		for(String s : name.split("\\-|\\_|(?<!^)(?=[A-Z][a-z])|(?<!(^|[A-Z]))(?=[A-Z])")) {
 			String first = Character.toString(s.charAt(0));
 			comp.appendText(s.replaceFirst(first, first.toUpperCase())).appendText(" ");

@@ -1,4 +1,4 @@
-package carbonconfiglib.gui.impl.forge;
+package carbonconfiglib.gui.impl.carbon;
 
 import java.util.List;
 import java.util.Objects;
@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import carbonconfiglib.api.IReloadMode;
 import carbonconfiglib.api.ISuggestionProvider.Suggestion;
 import carbonconfiglib.gui.api.DataType;
 import carbonconfiglib.gui.api.IValueNode;
@@ -16,33 +17,37 @@ import net.minecraft.util.text.ITextComponent;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 import speiger.src.collections.utils.Stack;
 
-public class ForgeValue implements IValueNode
+public class CarbonValue implements IValueNode, IValueActions
 {
+	IReloadMode mode;
 	ITextComponent name;
 	ITextComponent tooltip;
 	DataType type;
-	ReloadMode mode;
-	Function<String, ParseResult<?>> isValid;
+	boolean forced;
 	Supplier<List<Suggestion>> suggestions;
-	Consumer<String> saved;
+	
+	Function<String, ParseResult<Boolean>> isValid;
+	Consumer<String> saveAction;
 	
 	Stack<String> previous = new ObjectArrayList<>();
 	String current;
 	String defaultValue;
 	
-	public ForgeValue(ITextComponent name, ITextComponent tooltip, ReloadMode mode, DataType type, String value, String defaultValue, Supplier<List<Suggestion>> suggestions, Function<String, ParseResult<?>> isValid, Consumer<String> saved) {
+	public CarbonValue(IReloadMode mode, ITextComponent name, ITextComponent tooltip, DataType type, boolean forced, Supplier<List<Suggestion>> suggestions, String current, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Consumer<String> saveAction) {
+		this.mode = mode;
 		this.name = name;
 		this.tooltip = tooltip;
-		this.isValid = isValid;
-		this.mode = mode;
 		this.type = type;
-		this.current = value;
-		previous.push(current);
-		this.defaultValue = defaultValue;
+		this.forced = forced;
 		this.suggestions = suggestions;
-		this.saved = saved;
+		this.isValid = isValid;
+		this.saveAction = saveAction;
+		this.current = current;
+		this.defaultValue = defaultValue;
+		previous.push(current);
 	}
-	public void save() { saved.accept(current); }
+
+	public void save() { saveAction.accept(current); }
 	@Override
 	public boolean isDefault() { return Objects.equals(defaultValue, current); }
 	@Override
@@ -60,6 +65,7 @@ public class ForgeValue implements IValueNode
 	public void apply() {
 		if(previous.size() > 1) previous.pop();
 	}
+	
 	@Override
 	public StructureType getNodeType() { return StructureType.SIMPLE; }
 	@Override
@@ -73,13 +79,13 @@ public class ForgeValue implements IValueNode
 	@Override
 	public String get() { return current; }
 	@Override
-	public void set(String value) { current = value; }
+	public void set(String value) { this.current = value; }
 	@Override
-	public ParseResult<Boolean> isValid(String value) { return ParseResult.success(isValid.apply(value).isValid()); }
+	public ParseResult<Boolean> isValid(String value) { return isValid.apply(value); }
 	@Override
 	public DataType getDataType() { return type; }
 	@Override
-	public boolean isForcingSuggestions() { return type == DataType.ENUM; }
+	public boolean isForcingSuggestions() { return forced; }
 	@Override
 	public List<Suggestion> getSuggestions() { return suggestions.get(); }
 }

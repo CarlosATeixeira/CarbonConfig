@@ -168,6 +168,11 @@ public class MinecraftConfig implements IModConfig
 	}
 	
 	@Override
+	public boolean canCreateConfigs() { return false; }
+	@Override
+	public boolean createConfig(Path path) { return false; }
+
+	@Override
 	public IModConfig loadFromFile(Path path) {
 		if(Files.notExists(path)) return null;
 		try(InputStream stream = Files.newInputStream(path)) { return new FileConfig(path, CompressedStreamTools.readCompressed(stream)); }

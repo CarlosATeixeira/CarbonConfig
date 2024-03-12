@@ -2,19 +2,14 @@ package carbonconfiglib.gui.impl.minecraft;
 
 import java.util.List;
 
-import carbonconfiglib.api.ISuggestionProvider.Suggestion;
-import carbonconfiglib.gui.api.DataType;
-import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IConfigNode;
-import carbonconfiglib.gui.api.IValueNode;
+import carbonconfiglib.gui.api.INode;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -44,26 +39,14 @@ public class MinecraftLeaf implements IConfigNode
 	public List<IConfigNode> getChildren() { return null; }
 	
 	@Override
-	public IValueNode asValue() {
-		if(value == null) {
-			value = new MinecraftValue(entry);
-		}
+	public StructureType getDataStructure() { return StructureType.SIMPLE; }
+	
+	@Override
+	public INode asNode() {
+		if(value == null) value = new MinecraftValue(entry);
 		return value;
 	}
 	
-	@Override
-	public IArrayNode asArray() { return null; }
-	@Override
-	public ICompoundNode asCompound() { return null; }
-	@Override
-	public List<DataType> getDataType() { return ObjectLists.singleton(entry.getType()); }
-	
-	@Override
-	public List<Suggestion> getValidValues() { return null; }
-	@Override
-	public boolean isForcingSuggestions() { return false; }
-	@Override
-	public boolean isArray() { return false; }
 	@Override
 	public boolean isLeaf() { return true; }
 	@Override
@@ -99,7 +82,7 @@ public class MinecraftLeaf implements IConfigNode
 	@Override
 	public ITextComponent getTooltip() {
 		String id = entry.getDescriptionId();
-		TextComponent result = new StringTextComponent("");
+		StringTextComponent result = new StringTextComponent("");
 		result.appendSibling(new TranslationTextComponent(id).applyTextStyle(TextFormatting.YELLOW));
 		id += ".description";
 		if(I18n.hasKey(id)) {

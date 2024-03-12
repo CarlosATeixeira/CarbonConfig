@@ -10,7 +10,6 @@ import carbonconfiglib.gui.api.IConfigNode;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TextFormatting;
 
 /**
@@ -45,11 +44,6 @@ public class ConfigNode implements IConfigFolderNode
 				children.add(new ConfigNode(sub));
 			}
 			for(ConfigEntry<?> entry : section.getEntries()) {
-				if(!entry.isNotHidden()) continue;
-				if(entry.getDataType().isCompound()) {
-					children.add(new ConfigCompoundLeaf(entry));
-					continue;
-				}
 				children.add(new ConfigLeaf(entry));
 			}
 		}
@@ -61,7 +55,7 @@ public class ConfigNode implements IConfigFolderNode
 	public ITextComponent getName() { return IConfigNode.createLabel(section.getName()); }
 	@Override
 	public ITextComponent getTooltip() {
-		TextComponent comp = new StringTextComponent("");
+		StringTextComponent comp = new StringTextComponent("");
 		comp.appendSibling(new StringTextComponent(section.getName()).applyTextStyle(TextFormatting.YELLOW));
 		String[] array = section.getComment();
 		if(array != null && array.length > 0) {
