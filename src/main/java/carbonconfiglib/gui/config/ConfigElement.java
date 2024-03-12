@@ -114,7 +114,7 @@ public class ConfigElement extends Element
 		super.init();
 		if(createResetButtons(value)) {
 			if(isArray()) {
-				setReset = addChild(new CarbonIconButton(0, 0, 18, 18, Icon.DELETE, new StringTextComponent	(""), this::onDeleted).setIconOnly(), -31);
+				setReset = addChild(new CarbonIconButton(0, 0, 18, 18, Icon.DELETE, new StringTextComponent	(""), this::onDeleted).setIconOnly(), -51);
 				setReset.active = isReset();
 				moveDown = new CarbonHoverIconButton(0, 0, 15, 8, new IconInfo(0, -3, 16, 16), Icon.MOVE_DOWN, Icon.MOVE_DOWN_HOVERED, this::onMoveDown);
 				listeners.add(moveDown);

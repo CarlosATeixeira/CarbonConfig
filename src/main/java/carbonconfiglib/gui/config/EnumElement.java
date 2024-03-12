@@ -51,10 +51,10 @@ public class EnumElement extends ConfigElement
 		super.init();
 		if(!hasSuggestions() || isArray()) {
 			if(this.isArray()) {
-				addChild(new CarbonButton(0, 0, 40, 18, new TranslationTextComponent("gui.chunk_pregen.config.edit"), this::onSelect), -32);				
+				addChild(new CarbonButton(0, 0, 40, 18, new TranslationTextComponent("gui.carbonconfig.edit"), this::onSelect), -32);				
 			}
 			else {
-				addChild(new CarbonButton(0, 0, 72, 18, new TranslationTextComponent("gui.chunk_pregen.config.edit"), this::onPress));
+				addChild(new CarbonButton(0, 0, 72, 18, new TranslationTextComponent("gui.carbonconfig.edit"), this::onPress));
 			}
 		}
 	}
