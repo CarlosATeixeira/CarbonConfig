@@ -6,12 +6,11 @@ import java.util.Map;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 
-import carbonconfiglib.api.ISuggestionProvider.Suggestion;
 import carbonconfiglib.gui.api.IArrayNode;
 import carbonconfiglib.gui.api.ICompoundNode;
-import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.ListSelectionScreen;
+import carbonconfiglib.gui.screen.ListSelectionScreen.NodeSupplier;
 import carbonconfiglib.gui.widgets.CarbonHoverIconButton;
 import carbonconfiglib.gui.widgets.CarbonHoverIconButton.IconInfo;
 import carbonconfiglib.gui.widgets.CarbonIconButton;
@@ -51,7 +50,6 @@ public class ConfigElement extends Element
 	private static final ITextComponent RESTART = new TranslationTextComponent("gui.carbonconfig.restart").withStyle(TextFormatting.YELLOW);
 	protected List<IGuiEventListener> listeners = new ObjectArrayList<>();
 	protected List<Map.Entry<Widget, AlignOffset>> mappedListeners = new ObjectArrayList<>();
-	protected IConfigNode node;
 	protected IValueNode value;
 	protected IArrayNode array;
 	protected ICompoundNode compound;
@@ -63,29 +61,35 @@ public class ConfigElement extends Element
 	protected CarbonHoverIconButton moveDown;
 	protected CarbonHoverIconButton moveUp;
 	
-	public ConfigElement(IConfigNode node) {
-		super(node.getName());
-		this.node = node;
-		this.value = node.asValue();
+	protected ConfigElement(ITextComponent name) {
+		super(name);
 	}
 	
-	public ConfigElement(IConfigNode node, IValueNode value) {
-		super(node.getName());
-		this.node = node;
+	public ConfigElement(IValueNode value) {
+		super(value.getName());
 		this.value = value;
 	}
 	
-	public ConfigElement(IConfigNode node, IArrayNode array) {
-		super(node.getName());
-		this.node = node;
+	public ConfigElement(IArrayNode array, IValueNode value) {
+		super(value.getName());
+		this.array = array;
+		this.value = value;
+	}
+	
+	public ConfigElement(IArrayNode array, ITextComponent name) {
+		super(name);
 		this.array = array;
 	}
 	
-	public ConfigElement(IConfigNode node, IArrayNode array, int index) {
-		super(node.getName());
-		this.node = node;
-		this.array = array;
-		this.value = array.asValue(index);
+	public ConfigElement(ICompoundNode compound, ITextComponent name) {
+		super(name);
+		this.compound = compound;
+	}
+	
+	public ConfigElement(ICompoundNode compound, IValueNode value) {
+		super(value.getName());
+		this.compound = compound;
+		this.value = value;
 	}
 	
 	protected <T extends Widget> T addChild(T element) {
@@ -149,15 +153,15 @@ public class ConfigElement extends Element
 	@Override
 	public void render(MatrixStack poseStack, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		if(renderName() && !isArray()) {
-			renderName(poseStack, left, top, isChanged(), isCompound() ? 80 : 200, height);
-			if(!isCompound()) {
-				if(node.requiresReload()) {
+			renderName(poseStack, left, top, isChanged(), getMaxTextWidth(), height);
+			if(!isCompound() && value != null) {
+				if(value.requiresReload()) {
 					GuiUtils.drawTextureRegion(poseStack, left-16, top+(height/2)-6, 12, 12, Icon.RELOAD, 16, 16);
 					if(mouseX >= left-16 && mouseX <= left-4 && mouseY >= top && mouseY <= top+height && owner.isInsideList(mouseX, mouseY)) {
 						owner.addTooltips(RELOAD);
 					}
 				}
-				if(node.requiresRestart()) {
+				else if(value.requiresRestart()) {
 					GuiUtils.drawTextureRegion(poseStack, left-16, top+(height/2)-6, 12, 12, Icon.RESTART, 16, 16);
 					if(mouseX >= left-16 && mouseX <= left-4 && mouseY >= top && mouseY <= top+height && owner.isInsideList(mouseX, mouseY)) {
 						owner.addTooltips(RESTART);
@@ -194,8 +198,8 @@ public class ConfigElement extends Element
 			ITextComponent comp = new StringTextComponent(indexOf()+":");
 			renderText(poseStack, comp, maxX-115, top-1, 105, height, GuiAlign.RIGHT, -1);
 		}
-		if(mouseY >= top && mouseY <= top + height && mouseX >= left && mouseX <= maxX-2 && owner.isInsideList(mouseX, mouseY)) {
-			owner.addTooltips(node.getTooltip());
+		if(value != null && mouseY >= top && mouseY <= top + height && mouseX >= left && mouseX <= maxX-2 && owner.isInsideList(mouseX, mouseY)) {
+			owner.addTooltips(value.getTooltip());
 		}
 		if(isArray()) {
 			if(setReset.isHovered() && owner.isInsideList(mouseX, mouseY)) {
@@ -217,25 +221,15 @@ public class ConfigElement extends Element
 	}
 	
 	protected boolean hasSuggestions() {
-		if(isCompound()) {
-			if(compound.isForcedSuggestion(compoundIndex)) return false;
-			List<Suggestion> suggestions = compound.getValidValues(compoundIndex);
-			return suggestions != null && suggestions.size() > 0;
-		}
-		if(node != null && node.isForcingSuggestions()) return false;
-		List<Suggestion> suggestions = node == null ? null : node.getValidValues();
-		return suggestions != null && suggestions.size() > 0;
-	}
-	
-	public void setCompound(ICompoundNode compound, int index) {
-		this.compound = compound;
-		this.compoundIndex = index;
-		if(compound == null || index < 0) return;
-		setName(compound.getName(index));
+		return value != null && value.getSuggestions().size() > 0;
 	}
 	
 	protected int getMaxX(int prevMaxX) {
 		return prevMaxX;
+	}
+	
+	protected int getMaxTextWidth() {
+		return isCompound() ? 190 : 200;
 	}
 	
 	protected boolean isArray() {
@@ -243,7 +237,7 @@ public class ConfigElement extends Element
 	}
 	
 	protected boolean isCompound() {
-		return compound != null && compoundIndex >= 0;
+		return compound != null;
 	}
 	
 	protected void onMoveDown(CarbonHoverIconButton button) {
@@ -256,6 +250,10 @@ public class ConfigElement extends Element
 		if(!isArray()) return;
 		array.moveUp(indexOf());
 		owner.updateInformation();		
+	}
+	
+	protected boolean canMove() {
+		return isArray() && (canMoveDown() || canMoveUp());
 	}
 	
 	protected boolean canMoveUp() {
@@ -294,10 +292,6 @@ public class ConfigElement extends Element
 		return value.isDefault();
 	}
 	
-	public IConfigNode getNode() {
-		return node;
-	}
-	
 	protected void onDeleted(CarbonIconButton button) {
 		if(!isArray()) return;
 		owner.removeEntry(this);
@@ -316,11 +310,7 @@ public class ConfigElement extends Element
 	
 	protected void onSuggestion(CarbonIconButton button) {
 		if(value == null) return;
-		if(isCompound()) {
-			mc.setScreen(ListSelectionScreen.ofCompoundValue(mc.screen, node, value, compound, compoundIndex, owner.getCustomTexture()));
-			return;
-		}
-		mc.setScreen(ListSelectionScreen.ofValue(mc.screen, node, value, owner.getCustomTexture()));
+		mc.setScreen(new ListSelectionScreen(mc.screen, value, NodeSupplier.ofValue(), owner.getCustomTexture()));
 	}
 	
 	@Override

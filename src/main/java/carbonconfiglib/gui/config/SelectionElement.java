@@ -1,8 +1,10 @@
 package carbonconfiglib.gui.config;
 
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.IArrayNode;
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.ListSelectionScreen;
+import carbonconfiglib.gui.screen.ListSelectionScreen.NodeSupplier;
 import carbonconfiglib.gui.widgets.CarbonButton;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -26,15 +28,19 @@ public class SelectionElement extends ConfigElement
 {
 	Button textBox = addChild(new CarbonButton(0, 0, 72, 18, new TranslationTextComponent("gui.carbonconfig.edit"), this::onPress));
 	
-	public SelectionElement(IConfigNode node) {
-		super(node);
+	public SelectionElement(IValueNode value) {
+		super(value);
 	}
 	
-	public SelectionElement(IConfigNode node, IValueNode value) {
-		super(node, value);
+	public SelectionElement(ICompoundNode owner, IValueNode value) {
+		super(owner, value);
+	}
+	
+	public SelectionElement(IArrayNode owner, IValueNode value) {
+		super(owner, value);
 	}
 	
 	private void onPress(Button button) {
-		mc.setScreen(ListSelectionScreen.ofValue(mc.screen, node, value, owner.getCustomTexture()));
+		mc.setScreen(new ListSelectionScreen(mc.screen, value, NodeSupplier.ofValue(), owner.getCustomTexture()));
 	}
 }

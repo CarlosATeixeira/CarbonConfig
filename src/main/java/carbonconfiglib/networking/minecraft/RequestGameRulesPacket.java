@@ -9,7 +9,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 /**
@@ -49,7 +48,7 @@ public class RequestGameRulesPacket implements ICarbonPacket
 	
 	@Override
 	public void process(PlayerEntity player) {
-		if(!canIgnorePermissionCheck() && !player.hasPermissions(4)) {
+		if(!CarbonConfig.hasPermission(player, 4)) {
 			return;
 		}
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -59,10 +58,5 @@ public class RequestGameRulesPacket implements ICarbonPacket
 		byte[] data = new byte[buf.writerIndex()];
 		buf.readBytes(data);
 		CarbonConfig.NETWORK.sendToPlayer(new ConfigAnswerPacket(requestId, data), player);
-	}
-	
-	private boolean canIgnorePermissionCheck() {
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		return !server.isDedicatedServer() && (server instanceof IntegratedServer ? ((IntegratedServer)server).isPublished() : false);
 	}
 }

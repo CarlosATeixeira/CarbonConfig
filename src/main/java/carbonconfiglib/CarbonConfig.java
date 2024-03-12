@@ -31,6 +31,7 @@ import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.utils.AutomationType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -193,7 +194,7 @@ public class CarbonConfig
 			CarbonConfig.LOGGER.info("Tried to open a Remote config when there was no remote attached");
 			return;
 		}
-		else if(!mc.player.hasPermissions(4)) {
+		else if(!mc.hasSingleplayerServer() && !mc.player.hasPermissions(4)) {
 			CarbonConfig.LOGGER.info("Tried to open a Remote config without permission");			
 			return;
 		}
@@ -230,6 +231,12 @@ public class CarbonConfig
 		}
 		Minecraft mc = Minecraft.getInstance();
 		mc.setScreen(new ConfigScreen(Navigator.create(config).withWalker(path), config, mc.screen, texture.asHolder()));
+	}
+	
+	public static boolean hasPermission(PlayerEntity player, int permissionLevel) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server.isSingleplayer() && server.isSingleplayerOwner(player.getGameProfile())) return true;
+		return player.hasPermissions(permissionLevel);
 	}
 	
 	public void onCommonLoad(FMLCommonSetupEvent event) {
