@@ -14,6 +14,7 @@ import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.config.ConfigSection;
 import carbonconfiglib.config.ConfigSettings;
 import carbonconfiglib.config.FileSystemWatcher;
+import carbonconfiglib.examples.FullTestCase;
 import carbonconfiglib.gui.api.BackgroundTexture;
 import carbonconfiglib.gui.api.BackgroundTypes;
 import carbonconfiglib.gui.api.IModConfig;
@@ -31,6 +32,7 @@ import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.utils.AutomationType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -96,6 +98,7 @@ public class CarbonConfig
 			handler = CONFIGS.createConfig(config, ConfigSettings.withConfigType(ConfigType.CLIENT).withAutomations(AutomationType.AUTO_LOAD));
 			handler.register();
 		}
+		new FullTestCase().init(false);
 	}
 	
 	/**
@@ -230,6 +233,12 @@ public class CarbonConfig
 		}
 		Minecraft mc = Minecraft.getInstance();
 		mc.displayGuiScreen(new ConfigScreen(Navigator.create(config).withWalker(path), config, mc.currentScreen, texture.asHolder()));
+	}
+	
+	public static boolean hasPermission(PlayerEntity player, int permissionLevel) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		if(server.isSinglePlayer() && server.func_213199_b(player.getGameProfile())) return true;
+		return player.hasPermissionLevel(permissionLevel);
 	}
 	
 	public void onCommonLoad(FMLCommonSetupEvent event) {

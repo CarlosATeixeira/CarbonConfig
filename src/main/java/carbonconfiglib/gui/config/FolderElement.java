@@ -24,17 +24,23 @@ import net.minecraft.client.gui.widget.button.Button;
 public class FolderElement extends ConfigElement
 {
 	Button button = addChild(new CarbonButton(0, 0, 0, 18, "", this::onPress));
+	IConfigNode config;
 	Navigator nav;
 	
 	public FolderElement(IConfigNode node, Navigator prev)
 	{
-		super(node);
+		super(node.getName());
+		this.config = node;
 		button.setMessage(node.getName().getFormattedText());
 		nav = prev.add(node.getName(), node.getNodeName());
 	}
 	
 	public void onPress(Button button) {
-		mc.displayGuiScreen(new ConfigScreen(nav, node, mc.currentScreen, owner.getCustomTexture()));
+		mc.displayGuiScreen(new ConfigScreen(nav, config, mc.currentScreen, owner.getCustomTexture()));
+	}
+	
+	public IConfigNode getNode() {
+		return config;
 	}
 	
 	@Override

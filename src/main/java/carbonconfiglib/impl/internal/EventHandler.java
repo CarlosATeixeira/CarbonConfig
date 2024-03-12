@@ -164,7 +164,7 @@ public class EventHandler implements IConfigChangeListener
 		DataType.registerType(Fluid.class, RegistryElement.createForType(Fluid.class, "minecraft:empty"));
 		DataType.registerType(Enchantment.class, RegistryElement.createForType(Enchantment.class, "minecraft:fortune"));
 		DataType.registerType(Effect.class, RegistryElement.createForType(Effect.class, "minecraft:luck"));
-		DataType.registerType(ColorWrapper.class, new DataType(false, "0xFFFFFFFF", ColorElement::new, ColorElement::new));
+		DataType.registerType(ColorWrapper.class, new DataType(false, "0xFFFFFFFF", ColorElement::new, ColorElement::new, ColorElement::new));
 	}
 	
 	@OnlyIn(Dist.CLIENT)

@@ -77,6 +77,11 @@ public class ForgeConfig implements IModConfig
 	}
 	
 	@Override
+	public boolean canCreateConfigs() { return false; }
+	@Override
+	public boolean createConfig(Path path) { return false; }
+	
+	@Override
 	public String getFileName() {
 		return config.getFileName();
 	}

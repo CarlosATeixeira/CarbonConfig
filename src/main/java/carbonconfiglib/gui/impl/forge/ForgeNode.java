@@ -14,7 +14,6 @@ import carbonconfiglib.impl.Reflects;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -60,7 +59,7 @@ public class ForgeNode implements IConfigFolderNode
  		if(value == null) return;
 		String[] array = value.split("\n");
 		if(array != null && array.length > 0) {
-			TextComponent comp = new StringTextComponent("");
+			StringTextComponent comp = new StringTextComponent("");
 			for(int i = 0;i<array.length;comp.appendText("\n").appendText(array[i++]));
 			tooltip = comp;
 		}
@@ -90,7 +89,7 @@ public class ForgeNode implements IConfigFolderNode
 	public ITextComponent getName() { return IConfigNode.createLabel(Iterables.getLast(paths, "Root")); }
 	@Override
 	public ITextComponent getTooltip() {
-		TextComponent comp = new StringTextComponent("");
+		StringTextComponent comp = new StringTextComponent("");
 		comp.appendSibling(new StringTextComponent(Iterables.getLast(paths, "Root")).applyTextStyle(TextFormatting.YELLOW));
 		if(tooltip != null) comp.appendSibling(tooltip);
 		return comp;

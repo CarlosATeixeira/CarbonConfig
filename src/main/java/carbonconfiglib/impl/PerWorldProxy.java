@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.api.ConfigType;
 import carbonconfiglib.api.IConfigProxy;
 import carbonconfiglib.api.SimpleConfigProxy.SimpleTarget;
@@ -57,13 +58,14 @@ public final class PerWorldProxy implements IConfigProxy
 	}
 	
 	@Override
-	public List<Path> getBasePaths() {
-		List<Path> paths = new ObjectArrayList<>();
+	public Path getBasePaths(Path relativeFile) {
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server != null) paths.add(server.getActiveAnvilConverter().getFile(server.getFolderName(), "serverconfig").toPath());
-		else if(FMLEnvironment.dist.isClient()) paths.add(baseClientPath);
-		paths.add(baseServerPath);
-		return paths;
+		if(server != null) {
+			Path path = server.getActiveAnvilConverter().getFile(server.getFolderName(), "serverconfig").toPath();
+			if(Files.exists(path.resolve(relativeFile))) return path;
+		}
+		else if(FMLEnvironment.dist.isClient() && CarbonConfig.NETWORK.isInWorld()) return baseClientPath;
+		return baseServerPath;
 	}
 	
 	@Override
