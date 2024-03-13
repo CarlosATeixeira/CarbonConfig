@@ -1,8 +1,10 @@
 package carbonconfiglib.gui.config;
 
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.IArrayNode;
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.ListSelectionScreen;
+import carbonconfiglib.gui.screen.ListSelectionScreen.NodeSupplier;
 import carbonconfiglib.gui.widgets.CarbonButton;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -24,17 +26,26 @@ import net.minecraft.client.resources.I18n;
  */
 public class SelectionElement extends ConfigElement
 {
-	CarbonButton textBox = addChild(new CarbonButton(0, 0, 72, 18, I18n.format("gui.carbonconfig.edit"), this::onPress));
+	CarbonButton textBox = addChild(new CarbonButton(0, 0, isCompound() ? 105 : 72, 18, I18n.format("gui.carbonconfig.edit"), this::onPress));
 	
-	public SelectionElement(IConfigNode node) {
-		super(node);
+	public SelectionElement(IValueNode value) {
+		super(value);
 	}
 	
-	public SelectionElement(IConfigNode node, IValueNode value) {
-		super(node, value);
+	public SelectionElement(ICompoundNode owner, IValueNode value) {
+		super(owner, value);
+	}
+	
+	public SelectionElement(IArrayNode owner, IValueNode value) {
+		super(owner, value);
+	}
+	
+	@Override
+	protected boolean hasSuggestions() {
+		return false;
 	}
 	
 	private void onPress(GuiButton button) {
-		mc.displayGuiScreen(ListSelectionScreen.ofValue(mc.currentScreen, node, value, owner.getCustomTexture()));
+		mc.displayGuiScreen(new ListSelectionScreen(mc.currentScreen, value, NodeSupplier.ofValue(), owner.getCustomTexture()));
 	}
 }

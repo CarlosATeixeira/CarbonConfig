@@ -2,7 +2,7 @@ package carbonconfiglib.gui.api;
 
 import java.util.List;
 
-import carbonconfiglib.api.ISuggestionProvider.Suggestion;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.util.ChatComponentStyle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
@@ -25,14 +25,9 @@ import net.minecraft.util.IChatComponent;
 public interface IConfigNode
 {
 	public List<IConfigNode> getChildren();
-	public IValueNode asValue();
-	public IArrayNode asArray();
-	public ICompoundNode asCompound();
-	public List<DataType> getDataType();
-	public List<Suggestion> getValidValues();
-	public boolean isForcingSuggestions();
+	public INode asNode();
+	public StructureType getDataStructure();
 	
-	public boolean isArray();
 	public boolean isLeaf();
 	public boolean isRoot();
 	
@@ -52,6 +47,7 @@ public interface IConfigNode
 	public static ChatComponentStyle createLabel(String name) {
 		ChatComponentStyle comp = new ChatComponentText("");
 		for(String s : name.split("\\-|\\_|(?<!^)(?=[A-Z][a-z])|(?<!(^|[A-Z]))(?=[A-Z])")) {
+			if(s.isEmpty()) continue;
 			String first = Character.toString(s.charAt(0));
 			comp.appendText(s.replaceFirst(first, first.toUpperCase())).appendText(" ");
 		}

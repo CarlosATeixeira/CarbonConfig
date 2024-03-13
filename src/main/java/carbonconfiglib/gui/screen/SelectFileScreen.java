@@ -1,5 +1,6 @@
 package carbonconfiglib.gui.screen;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
@@ -56,6 +57,7 @@ public class SelectFileScreen extends ListScreen
 	@Override
 	protected void collectElements(Consumer<Element> elements) {
 		for(IConfigTarget target : config.getPotentialFiles()) {
+			if(Files.notExists(target.getConfigFile()) && !config.canCreateConfigs()) continue;
 			elements.accept(new WorldElement(target, config, parent, title));
 		}
 	}
@@ -136,7 +138,13 @@ public class SelectFileScreen extends ListScreen
 		}
 		
 		private void onPick(GuiButton button) {
-			IModConfig config = this.config.loadFromFile(target.getConfigFile());
+			Path file = target.getConfigFile();
+			if(Files.notExists(file)) {
+				if(!config.createConfig(file)) {
+					return;
+				}
+			}
+			IModConfig config = this.config.loadFromFile(file);
 			if(config == null) {
 				mc.displayGuiScreen(parent);
 				return;

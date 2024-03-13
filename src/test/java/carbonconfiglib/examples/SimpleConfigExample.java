@@ -79,7 +79,7 @@ public class SimpleConfigExample
 	}
 	
 	public int getClientValue(EntityPlayer player) {
-		return clientSyncedValue.get(player.getUniqueID()).get(); // Gets the PlayerEntity Specific value from the config automatically. If no value is provided the server side config applies! NOTE: THIS requires AutomationType.AUTO_SYNC to be set (default) otherwise no SYNC
+		return clientSyncedValue.get(player.getUniqueID()).get(); // Gets the Player Specific value from the config automatically. If no value is provided the server side config applies! NOTE: THIS requires AutomationType.AUTO_SYNC to be set (default) otherwise no SYNC
 	}
 	
 	public boolean getBooleanExample() {
