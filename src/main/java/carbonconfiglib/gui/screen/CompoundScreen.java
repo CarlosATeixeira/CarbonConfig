@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import carbonconfiglib.gui.api.BackgroundTexture.BackgroundHolder;
-import carbonconfiglib.gui.api.DataType;
 import carbonconfiglib.gui.api.ICompoundNode;
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.INode;
 import carbonconfiglib.gui.api.IValueNode;
+import carbonconfiglib.gui.config.ArrayElement;
+import carbonconfiglib.gui.config.CompoundElement;
 import carbonconfiglib.gui.config.ConfigElement;
 import carbonconfiglib.gui.config.Element;
 import carbonconfiglib.gui.config.ListScreen;
@@ -39,18 +40,14 @@ import net.minecraft.util.text.TextFormatting;
 public class CompoundScreen extends ListScreen
 {
 	GuiScreen prev;
-	IConfigNode entry;
 	ICompoundNode compound;
-	List<DataType> type;
 	GuiButton applyValue;
 	Runnable closeListener = null;
 	
-	public CompoundScreen(IConfigNode entry, ICompoundNode node, GuiScreen prev, BackgroundHolder customTexture) {
-		super(entry.getName(), customTexture);
+	public CompoundScreen(ICompoundNode node, GuiScreen prev, BackgroundHolder customTexture) {
+		super(node.getName(), customTexture);
 		this.prev = prev;
-		this.entry = entry;
 		this.compound = node;
-		this.type = entry.getDataType();
 		compound.createTemp();
 	}
 	
@@ -61,6 +58,16 @@ public class CompoundScreen extends ListScreen
 		int y = height;
 		applyValue = addWidget(new CarbonButton(x-82, y-27, 80, 20, I18n.format("gui.carbonconfig.apply"), this::apply));
 		addWidget(new CarbonButton(x+2, y-27, 80, 20, I18n.format("gui.carbonconfig.back"), this::goBack));
+	}
+	
+	@Override
+	protected int getScrollPadding() {
+		return 184;
+	}
+	
+	@Override
+	protected int getListWidth() {
+		return 360;
 	}
 	
 	@Override
@@ -109,16 +116,25 @@ public class CompoundScreen extends ListScreen
 	
 	@Override
 	protected void collectElements(Consumer<Element> elements) {
-		List<IValueNode> values = compound.getValues();
-		for(int i = 0,m=type.size();i<m;i++) {
-			if(compound.isForcedSuggestion(i)) {
-				elements.accept(new SelectionElement(entry, values.get(i)));
-				continue;
-			}
-			ConfigElement element = type.get(i).create(entry, values.get(i));
-			if(element != null) {
-				element.setCompound(compound, i);
-				elements.accept(element);
+		List<? extends INode> values = compound.getValues();
+		for(int i = 0,m=values.size();i<m;i++) {
+			INode node = values.get(i);
+			switch(node.getNodeType()) {
+				case COMPOUND:
+					elements.accept(new CompoundElement(compound, node.asCompound()));
+					break;
+				case LIST:
+					elements.accept(new ArrayElement(compound, node.asArray()));
+					break;
+				case SIMPLE:
+					IValueNode value = node.asValue();
+					if(value.isForcingSuggestions()) {
+						elements.accept(new SelectionElement(compound, value));
+						break;
+					}
+					ConfigElement element = value.getDataType().create(compound, value);
+					if(element != null) elements.accept(element);
+					break;
 			}
 		}
 	}

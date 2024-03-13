@@ -1,10 +1,11 @@
 package carbonconfiglib.gui.config;
 
 import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.EditStringScreen;
 import carbonconfiglib.gui.screen.ListSelectionScreen;
+import carbonconfiglib.gui.screen.ListSelectionScreen.NodeSupplier;
 import carbonconfiglib.gui.widgets.CarbonButton;
 import carbonconfiglib.gui.widgets.GuiUtils;
 import carbonconfiglib.utils.ParseResult;
@@ -30,12 +31,16 @@ public class EnumElement extends ConfigElement
 {
 	ParseResult<Boolean> result;
 	
-	public EnumElement(IConfigNode node, IValueNode value) {
-		super(node, value);
+	public EnumElement(IValueNode value) {
+		super(value);
 	}
 	
-	public EnumElement(IConfigNode node, IArrayNode array, int index) {
-		super(node, array, index);
+	public EnumElement(IArrayNode array, IValueNode value) {
+		super(array, value);
+	}
+	
+	public EnumElement(ICompoundNode compound, IValueNode value) {
+		super(compound, value);
 	}
 	
 	@Override
@@ -43,10 +48,10 @@ public class EnumElement extends ConfigElement
 		super.init();
 		if(!hasSuggestions() || isArray()) {
 			if(this.isArray()) {
-				addChild(new CarbonButton(0, 0, 40, 18, I18n.format("gui.chunk_pregen.config.edit"), this::onSelect), -12);				
+				addChild(new CarbonButton(0, 0, 40, 18, I18n.format("gui.carbonconfig.edit"), this::onSelect), -32);				
 			}
 			else {
-				addChild(new CarbonButton(0, 0, 72, 18, I18n.format("gui.chunk_pregen.config.edit"), this::onPress));
+				addChild(new CarbonButton(0, 0, 72, 18, I18n.format("gui.carbonconfig.edit"), this::onPress));
 			}
 		}
 	}
@@ -59,14 +64,24 @@ public class EnumElement extends ConfigElement
 	@Override
 	public void render(int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		super.render(x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
-		GuiUtils.drawScrollingString(font, value.get(), left + width - 235, top, 135, height - 2.75F, GuiAlign.LEFT, -1, 0);
+		String value = this.value.get();
+		if(isCompound()) {
+			int offset = font.getStringWidth(value) + 135;
+			GuiUtils.drawScrollingString(font, value, left + width - offset, top, 135, height - 2.75F, GuiAlign.LEFT, -1, 0);			
+		}
+		else if(isArray()) {
+			GuiUtils.drawScrollingString(font, value, left + (canMove() ? 5 : 10), top, 140, height - 2.75F, GuiAlign.LEFT, -1, 0);
+		}
+		else {
+			GuiUtils.drawScrollingString(font, value, left - 20, top, 140, height - 2.75F, GuiAlign.LEFT, -1, 0);
+		}
 	}
 	
 	private void onSelect(GuiButton button) {
-		mc.displayGuiScreen(ListSelectionScreen.ofValue(mc.currentScreen, node, value, owner.getCustomTexture()));
+		mc.displayGuiScreen(new ListSelectionScreen(mc.currentScreen, value, NodeSupplier.ofValue(), owner.getCustomTexture()));
 	}
 	
 	private void onPress(GuiButton button) {
-		mc.displayGuiScreen(new EditStringScreen(mc.currentScreen, name, node, value, owner.getCustomTexture()));
+		mc.displayGuiScreen(new EditStringScreen(mc.currentScreen, name, value, owner.getCustomTexture()));
 	}
 }
