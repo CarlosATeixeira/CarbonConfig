@@ -2,7 +2,7 @@ package carbonconfiglib.gui.api;
 
 import java.util.List;
 
-import carbonconfiglib.api.ISuggestionProvider.Suggestion;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentBase;
 import net.minecraft.util.text.TextComponentString;
@@ -25,14 +25,9 @@ import net.minecraft.util.text.TextComponentString;
 public interface IConfigNode
 {
 	public List<IConfigNode> getChildren();
-	public IValueNode asValue();
-	public IArrayNode asArray();
-	public ICompoundNode asCompound();
-	public List<DataType> getDataType();
-	public List<Suggestion> getValidValues();
-	public boolean isForcingSuggestions();
+	public INode asNode();
+	public StructureType getDataStructure();
 	
-	public boolean isArray();
 	public boolean isLeaf();
 	public boolean isRoot();
 	

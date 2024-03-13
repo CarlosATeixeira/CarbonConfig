@@ -2,11 +2,15 @@ package carbonconfiglib.gui.config;
 
 import carbonconfiglib.gui.api.DataType;
 import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.ISuggestionRenderer;
 import carbonconfiglib.gui.api.IValueNode;
+import carbonconfiglib.gui.screen.EditStringScreen;
+import carbonconfiglib.gui.widgets.CarbonButton;
 import carbonconfiglib.gui.widgets.CarbonEditBox;
 import carbonconfiglib.utils.ParseResult;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
@@ -33,19 +37,24 @@ public class RegistryElement extends ConfigElement
 	ParseResult<Boolean> result;
 	ISuggestionRenderer renderer;
 	
-	public RegistryElement(IConfigNode node, IValueNode value, ISuggestionRenderer renderer) {
-		super(node, value);
+	public RegistryElement(IValueNode value, ISuggestionRenderer renderer) {
+		super(value);
 		this.renderer = renderer;
 	}
 	
-	public RegistryElement(IConfigNode node, IArrayNode array, int index, ISuggestionRenderer renderer) {
-		super(node, array, index);
+	public RegistryElement(IArrayNode array, IValueNode value, ISuggestionRenderer renderer) {
+		super(array, value);
+		this.renderer = renderer;
+	}
+	
+	public RegistryElement(ICompoundNode compound, IValueNode value, ISuggestionRenderer renderer) {
+		super(compound, value);
 		this.renderer = renderer;
 	}
 	
 	public static DataType createForType(Class<?> clz, String defaultValue) {
 		ISuggestionRenderer renderer = ISuggestionRenderer.Registry.getRendererForType(clz);
-		return new DataType(false, defaultValue, (K, V) -> new RegistryElement(K, V, renderer), (K, V, E) -> new RegistryElement(K, V, E, renderer));
+		return new DataType(false, defaultValue, K -> new RegistryElement(K, renderer), (K, V) -> new RegistryElement(K, V, renderer), (K, V) -> new RegistryElement(K, V, renderer));
 	}
 	
 	@Override
@@ -64,6 +73,13 @@ public class RegistryElement extends ConfigElement
 				value.set(T);
 			});
 		}
+		else {
+			addChild(new CarbonButton(0, 0, 72, 18, I18n.format("gui.carbonconfig.edit"), this::onPress));
+		}
+	}
+	
+	private void onPress(GuiButton button) {
+		mc.displayGuiScreen(new EditStringScreen(mc.currentScreen, name, value, owner.getCustomTexture()));
 	}
 	
 	@Override

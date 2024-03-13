@@ -1,10 +1,8 @@
 package carbonconfiglib.impl.entries;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -12,13 +10,13 @@ import carbonconfiglib.api.ISuggestionProvider;
 import carbonconfiglib.api.buffer.IReadBuffer;
 import carbonconfiglib.api.buffer.IWriteBuffer;
 import carbonconfiglib.config.ConfigEntry.CollectionConfigEntry;
-import carbonconfiglib.config.ConfigEntry.IArrayConfig;
 import carbonconfiglib.config.ConfigSection;
 import carbonconfiglib.utils.Helpers;
-import carbonconfiglib.utils.IEntryDataType;
-import carbonconfiglib.utils.IEntryDataType.SimpleDataType;
 import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
+import carbonconfiglib.utils.structure.IStructuredData;
+import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
+import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import net.minecraft.util.ResourceLocation;
@@ -42,7 +40,7 @@ import speiger.src.collections.objects.sets.ObjectLinkedOpenHashSet;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class RegistryValue<T extends IForgeRegistryEntry<T>> extends CollectionConfigEntry<T, Set<T>> implements IArrayConfig
+public class RegistryValue<T extends IForgeRegistryEntry<T>> extends CollectionConfigEntry<T, Set<T>>
 {
 	FMLControlledNamespacedRegistry<T> registry;
 	Class<T> clz;
@@ -99,46 +97,8 @@ public class RegistryValue<T extends IForgeRegistryEntry<T>> extends CollectionC
 	}
 	
 	@Override
-	public List<String> getEntries() {
-		List<String> result = new ObjectArrayList<>();
-		for(T entry : getValue()) {
-			result.add(registry.getKey(entry).toString());
-		}
-		return result;
-	}
-	
-	@Override
-	public List<String> getDefaults() {
-		List<String> result = new ObjectArrayList<>();
-		for(T entry : getDefault()) {
-			result.add(registry.getKey(entry).toString());
-		}
-		return result;
-	}
-	
-	@Override
-	public ParseResult<Boolean> canSetArray(List<String> entries) {
-		if(entries == null) return ParseResult.partial(false, NullPointerException::new, "Value isn't allowed to be null");
-		for(int i = 0,m=entries.size();i<m;i++) {
-			T result = registry.getValue(new ResourceLocation(entries.get(i)));
-			if(result == null) return ParseResult.partial(false, NoSuchElementException::new, "Value ["+entries.get(i)+"] doesn't exist in the registry");
-			if(filter != null && !filter.test(result)) return ParseResult.partial(false, IllegalArgumentException::new, "Value ["+entries.get(i)+"] isn't allowed");
-		}
-		return ParseResult.success(true);
-	}
-	
-	@Override
-	public void setArray(List<String> entries) {
-		StringJoiner joiner = new StringJoiner(",");
-		for(String s : entries) {
-			joiner.add(s);
-		}
-		deserializeValue(joiner.toString());
-	}
-	
-	@Override
-	public IEntryDataType getDataType() {
-		return SimpleDataType.ofVariant(clz);
+	public IStructuredData getDataType() {
+		return SimpleData.variant(EntryDataType.STRING, clz);
 	}
 
 	@Override

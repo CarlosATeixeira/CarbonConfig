@@ -1,6 +1,7 @@
 package carbonconfiglib;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.config.ConfigSection;
 import carbonconfiglib.config.ConfigSettings;
 import carbonconfiglib.config.FileSystemWatcher;
+import carbonconfiglib.examples.FullTestCase;
 import carbonconfiglib.gui.api.BackgroundTexture;
 import carbonconfiglib.gui.api.BackgroundTypes;
 import carbonconfiglib.gui.api.IModConfig;
@@ -32,7 +34,9 @@ import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.utils.AutomationType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.UserListOpsEntry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.GuiModList;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -50,8 +54,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
 import net.minecraftforge.fml.relauncher.Side;
-import speiger.src.collections.objects.maps.impl.hash.Object2ObjectLinkedOpenHashMap;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import speiger.src.collections.objects.maps.impl.hash.Object2ObjectLinkedOpenHashMap;
 import speiger.src.collections.objects.maps.impl.hash.Object2ObjectOpenHashMap;
 
 /**
@@ -69,7 +73,7 @@ import speiger.src.collections.objects.maps.impl.hash.Object2ObjectOpenHashMap;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@Mod(modid = "carbonconfig", version = "1.1.3", name = "Carbon Config Library", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.11]")
+@Mod(modid = "carbonconfig", version = "1.2.0", name = "Carbon Config Library", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.11]")
 public class CarbonConfig
 {
 	public static final Logger LOGGER = LogManager.getLogger();
@@ -86,7 +90,6 @@ public class CarbonConfig
 	@net.minecraftforge.fml.common.Mod.EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
-		NETWORK.init();
 		MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
 		if(FMLCommonHandler.instance().getSide().isClient()) {
 			MinecraftForge.EVENT_BUS.register(this);
@@ -100,6 +103,7 @@ public class CarbonConfig
 			handler = CONFIGS.createConfig(config, ConfigSettings.withConfigType(ConfigType.CLIENT).withAutomations(AutomationType.AUTO_LOAD, AutomationType.AUTO_RELOAD));
 			handler.register();
 		}
+		new FullTestCase().init(false);
 	}
 	
 	/**
@@ -234,6 +238,13 @@ public class CarbonConfig
 		}
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.displayGuiScreen(new ConfigScreen(Navigator.create(config).withWalker(path), config, mc.currentScreen, texture.asHolder()));
+	}
+	
+	public static boolean hasPermission(EntityPlayer player, int permissionLevel) {
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		if(server.isSinglePlayer() && Objects.equals(player.getGameProfile().getName(), server.getServerOwner())) return true;
+		UserListOpsEntry entry = server.getPlayerList().getOppedPlayers().getEntry(player.getGameProfile());
+		return entry != null && entry.getPermissionLevel() >= permissionLevel;
 	}
 	
 	@net.minecraftforge.fml.common.Mod.EventHandler
