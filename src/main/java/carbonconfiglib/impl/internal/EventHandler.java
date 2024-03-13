@@ -255,7 +255,7 @@ public class EventHandler implements IConfigChangeListener
 		DataType.registerType(Fluid.class, RegistryElement.createForType(Fluid.class, "minecraft:water"));
 		DataType.registerType(Enchantment.class, RegistryElement.createForType(Enchantment.class, "minecraft:fortune"));
 		DataType.registerType(Potion.class, RegistryElement.createForType(Potion.class, "minecraft:luck"));
-		DataType.registerType(ColorWrapper.class, new DataType(false, "0xFFFFFFFF", ColorElement::new, ColorElement::new));
+		DataType.registerType(ColorWrapper.class, new DataType(false, "0xFFFFFFFF", ColorElement::new, ColorElement::new, ColorElement::new));
 	}
 	
 	public void onServerJoinPacket(EntityPlayer player) {

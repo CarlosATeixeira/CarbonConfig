@@ -5,10 +5,13 @@ import java.util.Locale;
 
 import carbonconfiglib.api.ISuggestionProvider.Suggestion;
 import carbonconfiglib.gui.api.DataType;
-import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IConfigNode;
-import carbonconfiglib.gui.api.IValueNode;
+import carbonconfiglib.gui.api.INode;
+import carbonconfiglib.impl.ReloadMode;
+import carbonconfiglib.impl.entries.ColorValue.ColorWrapper;
+import carbonconfiglib.utils.Helpers;
+import carbonconfiglib.utils.ParseResult;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
@@ -18,6 +21,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.common.config.Property.Type;
+import net.minecraftforge.fml.common.Loader;
 import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
@@ -39,7 +43,7 @@ public class ForgeLeaf implements IConfigNode
 {
 	Property property;
 	ForgeValue value;
-	ForgeArrayValue array;
+	ForgeArray array;
 	
 	public ForgeLeaf(Property property) {
 		this.property = property;
@@ -47,29 +51,21 @@ public class ForgeLeaf implements IConfigNode
 
 	@Override
 	public List<IConfigNode> getChildren() { return null; }
+	
 	@Override
-	public IValueNode asValue() {
-		if(isArray()) return null;
-		if(value == null) value = new ForgeValue(property);
+	public INode asNode() {
+		if(property.isList()) {
+			if(array == null) array = new ForgeArray(getName(), getTooltip(), getMode(), fromType(property.getType()), new ObjectArrayList<>(property.getStringList()), new ObjectArrayList<>(property.getDefaults()), () -> getValidValues(), this::isValid, T -> property.setValues(T.toArray(new String[T.size()])));
+			return array;
+		}
+		if(value == null) value = new ForgeValue(getName(), getTooltip(), getMode(), fromType(property.getType()), property.getString(), property.getDefault(), () -> getValidValues(), this::isValid, property::set);
 		return value;
 	}
 	
-	@Override
-	public IArrayNode asArray() {
-		if(!isArray()) return null;
-		if(array == null) array = new ForgeArrayValue(property, fromType(property.getType()));
-		return array;
+	private ReloadMode getMode() {
+		return property.requiresMcRestart() ? ReloadMode.GAME : (property.requiresWorldRestart() ? ReloadMode.WORLD : null);
 	}
-	
-	@Override
-	public ICompoundNode asCompound() { return null; }
-	
-	@Override
-	public List<DataType> getDataType() {
-		return ObjectLists.singleton(fromType(property.getType()));
-	}
-	
-	@Override
+		
 	public List<Suggestion> getValidValues() {
 		String[] values = property.getValidValues();
 		if(values == null || values.length <= 0) return ObjectLists.empty();
@@ -80,25 +76,28 @@ public class ForgeLeaf implements IConfigNode
 		return suggestion;
 	}
 	
-	@Override
-	public boolean isForcingSuggestions() {
-		String[] value = property.getValidValues();
-		return value != null && value.length > 0;
+	public ParseResult<Boolean> isValid(String value) {
+		switch(property.getType()) {
+			case BOOLEAN: return ParseResult.success(true);
+			case COLOR: return validate(ColorWrapper.parseInt(value));
+			case DOUBLE: return validate(Helpers.parseDouble(value));
+			case INTEGER: return validate(Helpers.parseInt(value));
+			case MOD_ID: return ParseResult.result(Loader.instance().getIndexedModList().containsKey(value), NullPointerException::new, "Mod ["+value+"] isn't a thing");
+			case STRING: return ParseResult.success(true);
+			default: return ParseResult.success(true);
+		}
+	}
+	
+	private ParseResult<Boolean> validate(ParseResult<?> value) {
+		return value.hasError() ? value.withDefault(false) : ParseResult.success(true);
 	}
 	
 	@Override
-	public boolean isArray() {
-		return property.isList();
-	}
-	
+	public StructureType getDataStructure() { return property.isList() ? StructureType.LIST : StructureType.SIMPLE; }
 	@Override
-	public boolean isLeaf() {
-		return true;
-	}
-	
+	public boolean isLeaf() { return true; }
 	@Override
 	public boolean isRoot() { return false; }
-	
 	@Override
 	public boolean isChanged() { return (value != null && value.isChanged()) || (array != null && array.isChanged()); }
 	
@@ -110,14 +109,9 @@ public class ForgeLeaf implements IConfigNode
 	
 	@Override
 	public void setDefault() {
-		if(isArray()) {
-			if(array == null) asArray();
-			array.setDefault();
-		}
-		else {
-			if(value == null) asValue();
-			value.setDefault();
-		}
+		asNode();
+		if(property.isList()) array.setDefault();
+		else value.setDefault();
 	}
 	
 	@Override
