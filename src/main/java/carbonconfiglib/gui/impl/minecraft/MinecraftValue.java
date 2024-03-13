@@ -1,10 +1,22 @@
 package carbonconfiglib.gui.impl.minecraft;
 
+import java.util.List;
 import java.util.Objects;
 
+import carbonconfiglib.api.ISuggestionProvider.Suggestion;
+import carbonconfiglib.gui.api.DataType;
+import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.utils.ParseResult;
+import carbonconfiglib.utils.structure.IStructuredData.StructureType;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import speiger.src.collections.objects.lists.ObjectArrayList;
+import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -61,4 +73,29 @@ public class MinecraftValue implements IValueNode
 	public void set(String value) { this.current = value; }
 	@Override
 	public ParseResult<Boolean> isValid(String value) { return entry.isValid(value); }
+	@Override
+	public StructureType getNodeType() { return StructureType.SIMPLE; }
+	@Override
+	public boolean requiresRestart() { return false; }
+	@Override
+	public boolean requiresReload() { return false; }
+	@Override
+	public IChatComponent getName() { return IConfigNode.createLabel(I18n.format(entry.getDescriptionId())); }
+	@Override
+	public IChatComponent getTooltip() {
+		String id = entry.getDescriptionId();
+		ChatComponentText result = new ChatComponentText("");
+		result.appendSibling(new ChatComponentTranslation(id).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.YELLOW)));
+		id += ".description";
+		if(I18n.format(id) != id) {
+			result.appendText("\n").appendSibling(new ChatComponentTranslation(id).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.GRAY)));
+		}
+		return result;
+	}
+	@Override
+	public DataType getDataType() { return entry.getType(); }
+	@Override
+	public boolean isForcingSuggestions() { return false; }
+	@Override
+	public List<Suggestion> getSuggestions() { return ObjectLists.empty(); }
 }

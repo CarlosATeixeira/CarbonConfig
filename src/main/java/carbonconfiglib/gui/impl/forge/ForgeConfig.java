@@ -76,6 +76,10 @@ public class ForgeConfig implements IModConfig
 		}
 	}
 	
+	public boolean canCreateConfigs() { return false; }
+	@Override
+	public boolean createConfig(Path path) { return false; }
+	
 	@Override
 	public IConfigNode getRootNode() { return new ForgeRoot(config, configName); }
 	@Override
