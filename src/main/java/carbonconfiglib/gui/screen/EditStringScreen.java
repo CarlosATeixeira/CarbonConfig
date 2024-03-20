@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import carbonconfiglib.gui.api.BackgroundTexture;
 import carbonconfiglib.gui.api.BackgroundTexture.BackgroundHolder;
-import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.config.ElementList;
 import carbonconfiglib.gui.widgets.CarbonButton;
@@ -37,17 +36,15 @@ import net.minecraft.world.item.ItemStack;
 public class EditStringScreen extends Screen
 {
 	Screen parent;
-	IConfigNode node;
 	IValueNode value;
 	EditBox textBox;
 	boolean valid = true;
 	BackgroundHolder texture;
 	ParseResult<Boolean> result;
 
-	public EditStringScreen(Screen parent, Component name, IConfigNode node, IValueNode value, BackgroundHolder texture) {
+	public EditStringScreen(Screen parent, Component name, IValueNode value, BackgroundHolder texture) {
 		super(name);
 		this.parent = parent;
-		this.node = node;
 		this.value = value;
 		this.value.createTemp();
 		this.texture = texture == null ? BackgroundTexture.DEFAULT.asHolder() : texture;
@@ -61,6 +58,7 @@ public class EditStringScreen extends Screen
 		addRenderableWidget(new CarbonButton(x+105, 160, 85, 20, Component.translatable("gui.carbonconfig.cancel"), this::cancel));
 		textBox = new EditBox(font, x, 113, 200, 18, Component.empty());
 		addRenderableWidget(textBox);
+		textBox.setMaxLength(512);
 		textBox.setValue(value.get());
 		textBox.setResponder(T -> {
 			textBox.setTextColor(0xE0E0E0);

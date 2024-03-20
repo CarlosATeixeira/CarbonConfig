@@ -8,14 +8,11 @@ import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.gui.impl.forge.ForgeHelpers;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.Helpers;
-import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -63,7 +60,7 @@ public class SaveForgeConfigPacket implements ICarbonPacket
 	
 	@Override
 	public void process(Player player) {
-		if(!canIgnorePermissionCheck() && !player.hasPermissions(4)) {
+		if(!CarbonConfig.hasPermission(player, 4)) {
 			return;
 		}
 		ModConfig config = findConfig();
@@ -77,10 +74,5 @@ public class SaveForgeConfigPacket implements ICarbonPacket
 			if(modId.equalsIgnoreCase(config.getModId())) return config;
 		}
 		return null;
-	}
-	
-	private boolean canIgnorePermissionCheck() {
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		return !server.isDedicatedServer() && (server instanceof IntegratedServer ? ((IntegratedServer)server).isPublished() : false);
 	}
 }
