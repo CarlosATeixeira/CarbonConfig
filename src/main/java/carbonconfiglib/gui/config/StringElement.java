@@ -1,7 +1,7 @@
 package carbonconfiglib.gui.config;
 
 import carbonconfiglib.gui.api.IArrayNode;
-import carbonconfiglib.gui.api.IConfigNode;
+import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IValueNode;
 import carbonconfiglib.gui.screen.EditStringScreen;
 import carbonconfiglib.gui.widgets.CarbonButton;
@@ -33,12 +33,16 @@ public class StringElement extends ConfigElement
 	EditBox edit;
 	ParseResult<Boolean> result;
 	
-	public StringElement(IConfigNode node, IValueNode value) {
-		super(node, value);
+	public StringElement(IValueNode value) {
+		super(value);
 	}
 	
-	public StringElement(IConfigNode node, IArrayNode array, int index) {
-		super(node, array, index);
+	public StringElement(IArrayNode array, IValueNode value) {
+		super(array, value);
+	}
+	
+	public StringElement(ICompoundNode compound, IValueNode value) {
+		super(compound, value);
 	}
 	
 	@Override
@@ -46,8 +50,9 @@ public class StringElement extends ConfigElement
 	{
 		super.init();
 		if(this.isArray()) {
-			edit = addChild(new CarbonEditBox(font, 0, 0, 150, 18), GuiAlign.CENTER, 0);
+			edit = addChild(new CarbonEditBox(font, 0, 0, 180, 18), GuiAlign.CENTER, 0);
 			edit.setValue(value.get());
+			edit.setMaxLength(512);
 			edit.setResponder(T -> {
 				edit.setTextColor(0xE0E0E0);
 				result = null;
@@ -59,7 +64,7 @@ public class StringElement extends ConfigElement
 			});
 		}
 		else {
-			addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
+			addChild(new CarbonButton(0, 0, isCompound() ? 105 : 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
 		}
 	}
 	
@@ -87,6 +92,6 @@ public class StringElement extends ConfigElement
 	}
 	
 	private void onPress(Button button) {
-		mc.setScreen(new EditStringScreen(mc.screen, name, node, value, owner.getCustomTexture()));
+		mc.setScreen(new EditStringScreen(mc.screen, name, value, owner.getCustomTexture()));
 	}
 }
