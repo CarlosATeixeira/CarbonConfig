@@ -13,7 +13,7 @@ jarJar.enable()
 
 version = MC_VERSION + '-' + MOD_VERSION
 group = 'carbonconfiglib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'Carbon Config'
+archivesBaseName = 'CarbonConfig'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -167,7 +167,7 @@ modrinth {
 	versionNumber = MOD_VERSION
 	versionType = RELEASE_TYPE
 	uploadFile = jar
-	gameVersions = ['1.19.2']
+	gameVersions = [MC_VERSION]
 	loaders = ['forge']
 	
     def changelog = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
@@ -187,6 +187,6 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     def changelog = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
     mainFile.changelog = changelog.exists() ? changelog.getText('UTF-8') : "";
     mainFile.changelogType = 'markdown'
-    mainFile.addGameVersion('1.19.2', 'Server', 'Client')
+    mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
     mainFile.addJavaVersion('Java 17')
 }
