@@ -117,6 +117,7 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 task publishMods() {
