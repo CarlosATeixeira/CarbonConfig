@@ -2,11 +2,8 @@ package carbonconfiglib.gui.config;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import carbonconfiglib.gui.config.ConfigElement.GuiAlign;
 import carbonconfiglib.gui.widgets.GuiUtils;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -17,6 +14,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -87,7 +85,7 @@ public class Element extends ContainerObjectSelectionList.Entry<Element> {
 	
 	@Override
 	public List<? extends GuiEventListener> children() {
-		return ObjectLists.emptyList();
+		return ObjectLists.empty();
 	}
 	
 	@Override

@@ -9,7 +9,6 @@ import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
@@ -177,10 +176,10 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		value.update(partialTicks);
 		super.setScrollAmount(value.getValue());
-		super.render(stack, mouseX, mouseY, partialTicks);
+		super.render(graphics, mouseX, mouseY, partialTicks);
 	}
 	
 	public void setCustomBackground(BackgroundHolder customBackground) {
@@ -190,14 +189,13 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	}
 	
 	@Override
-	protected void renderBackground(GuiGraphics stack) {
+	protected void renderBackground(GuiGraphics graphics) {
 		if(customBackground == null || (minecraft.level != null && customBackground.shouldDisableInLevel())) return;
 		renderBackground(x0, x1, y0, y1, (float)getScrollAmount(), customBackground.getTexture());
 	}
 	
 	@Override
-	protected void renderList(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
-		super.renderList(stack, mouseX, mouseY, partialTicks);
+	protected void renderDecorations(GuiGraphics graphics, int mouseX, int mouseY) {
 		if(customBackground == null) return;
 		renderListOverlay(x0, x1, y0, y1, width, height, customBackground.getTexture());
 	}
@@ -224,7 +222,6 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		RenderSystem.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ZERO, DestFactor.ONE);
-		RenderSystem.setShaderTexture(0,0);
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		builder.vertex(x0, y0 + 4, 0D).color(0, 0, 0, 0).endVertex();

@@ -6,8 +6,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import carbonconfiglib.api.ISuggestionProvider.Suggestion;
 import carbonconfiglib.gui.api.BackgroundTexture.BackgroundHolder;
 import carbonconfiglib.gui.api.IArrayNode;
@@ -107,7 +105,7 @@ public class ListSelectionScreen extends ListScreen
 	
 	@Override
 	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
-		apply.active = value.isChanged();
+		apply.active = node.isChanged();
 		super.render(stack, mouseX, mouseY, partialTicks);
 		stack.drawString(font, title, (width/2)-(font.width(title)/2), 8, -1);
 	}

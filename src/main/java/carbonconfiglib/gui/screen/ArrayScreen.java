@@ -2,8 +2,6 @@ package carbonconfiglib.gui.screen;
 
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import carbonconfiglib.gui.api.BackgroundTexture.BackgroundHolder;
 import carbonconfiglib.gui.api.IArrayNode;
 import carbonconfiglib.gui.api.INode;

@@ -1,7 +1,5 @@
 package carbonconfiglib.gui.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import carbonconfiglib.gui.config.IListOwner;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

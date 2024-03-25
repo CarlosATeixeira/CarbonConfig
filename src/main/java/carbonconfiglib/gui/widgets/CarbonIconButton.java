@@ -3,7 +3,6 @@ package carbonconfiglib.gui.widgets;
 import java.util.function.Consumer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import carbonconfiglib.gui.config.ConfigElement.GuiAlign;
 import net.minecraft.client.Minecraft;

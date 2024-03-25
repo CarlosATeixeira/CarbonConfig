@@ -1,19 +1,15 @@
 package carbonconfiglib.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import carbonconfiglib.gui.api.ISuggestionRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -50,20 +46,20 @@ public class SuggestionRenderers
 {
 	public static class ItemEntry implements ISuggestionRenderer {
 		@Override
-		public Component renderSuggestion(GuiGraphics stack, String value, int x, int y) {
+		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			ResourceLocation id = ResourceLocation.tryParse(value);
 			if(id == null) return null;
 			Item item = BuiltInRegistries.ITEM.get(id);
 			if(item == Items.AIR || item == null) return null;
 			ItemStack itemStack = new ItemStack(item);
-			stack.renderItem(itemStack, x, y);
+			graphics.renderItem(itemStack, x, y);
 			return itemStack.getHoverName().copy().withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));			
 		}
 	}
 	
 	public static class FluidEntry implements ISuggestionRenderer {
 		@Override
-		public Component renderSuggestion(GuiGraphics stack, String value, int x, int y) {
+		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			ResourceLocation id = ResourceLocation.tryParse(value);
 			if(id == null) return null;
 			Fluid fluid = BuiltInRegistries.FLUID.get(id);
@@ -73,7 +69,7 @@ public class SuggestionRenderers
 			RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
 			int color = FluidRenderHandlerRegistry.INSTANCE.get(fluid).getFluidColor(null, null, fluid.defaultFluidState());
 			RenderSystem.setShaderColor((color >> 16 & 255) / 255F, (color >> 8 & 255) / 255F, (color & 255) / 255F, 1F);
-			stack.blit(x, y, 0, 18, 18, sprite);
+			graphics.blit(x, y, 0, 18, 18, sprite);
 			RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 			return getDescription(fluid).withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));
 		}
@@ -89,19 +85,19 @@ public class SuggestionRenderers
 	
 	public static class EnchantmentEntry implements ISuggestionRenderer {
 		@Override
-		public Component renderSuggestion(GuiGraphics stack, String value, int x, int y) {
+		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			ResourceLocation id = ResourceLocation.tryParse(value);
 			if(id == null) return null;
 			Enchantment ench = BuiltInRegistries.ENCHANTMENT.get(id);
 			if(ench == null) return null;
-			stack.renderItem(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ench, ench.getMinLevel())), x, y);
+			graphics.renderItem(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ench, ench.getMinLevel())), x, y);
 			return ench.getFullname(ench.getMinLevel()).copy().withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));
 		}
 	}
 	
 	public static class PotionEntry implements ISuggestionRenderer {
 		@Override
-		public Component renderSuggestion(GuiGraphics stack, String value, int x, int y) {
+		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			ResourceLocation id = ResourceLocation.tryParse(value);
 			if(id == null) return null;
 			MobEffect potion = BuiltInRegistries.MOB_EFFECT.get(id);
@@ -109,17 +105,17 @@ public class SuggestionRenderers
 			ItemStack item = new ItemStack(Items.POTION);
 			PotionUtils.setCustomEffects(item, ObjectLists.singleton(new MobEffectInstance(potion)));
 			item.addTagElement("CustomPotionColor", IntTag.valueOf(potion.getColor()));
-			stack.renderItem(item, x, y);
+			graphics.renderItem(item, x, y);
 			return potion.getDisplayName().copy().withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));
 		}
 	}
 	
 	public static class ColorEntry implements ISuggestionRenderer {
 		@Override
-		public Component renderSuggestion(GuiGraphics stack, String value, int x, int y) {
+		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			try {
-				GuiComponent.fill(stack, x+1, y-1, x+18, y+17, 0xFFA0A0A0);
-				GuiComponent.fill(stack, x+2, y, x+17, y+16, Long.decode(value).intValue() | 0xFF000000);
+				graphics.fill(x+1, y-1, x+18, y+17, 0xFFA0A0A0);
+				graphics.fill(x+2, y, x+17, y+16, Long.decode(value).intValue() | 0xFF000000);
 			}
 			catch(Exception e) {
 			}

@@ -1,7 +1,5 @@
 package carbonconfiglib.gui.config;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import carbonconfiglib.gui.api.IArrayNode;
 import carbonconfiglib.gui.api.ICompoundNode;
 import carbonconfiglib.gui.api.IValueNode;
@@ -66,7 +64,7 @@ public class StringElement extends ConfigElement
 			});
 		}
 		else {
-			addChild(new CarbonButton(0, 0, 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
+			addChild(new CarbonButton(0, 0, isCompound() ? 105 : 72, 18, Component.translatable("gui.carbonconfig.edit"), this::onPress));
 		}
 	}
 	
