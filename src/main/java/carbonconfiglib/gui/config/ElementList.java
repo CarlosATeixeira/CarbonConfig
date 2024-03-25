@@ -42,14 +42,16 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	BackgroundHolder customBackground;
 	int listWidth = 220;
 	int scrollPadding = 124;
+	int endY;
 	Consumer<Element> callback;
 	int lastTick = 0;
 	boolean isScrolling;
 	SmoothFloat value = new SmoothFloat(0.8F);
 	boolean shouldSelect = false;
 	
-	public ElementList(int width, int height, int screenY, int listY, int itemHeight) {
-		super(Minecraft.getInstance(), width, height, screenY, listY, itemHeight);
+	public ElementList(int width, int height, int screenY, int endY, int itemHeight) {
+		super(Minecraft.getInstance(), width, height, screenY, itemHeight);
+		this.endY = endY;
 	}
 	
 	@Override
@@ -173,17 +175,17 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 		for(int i = 0;i < max;++i)
 		{
 			int j1 = this.getRowTop(i);
-			if(j1+itemHeight >= this.y0 && j1 <= this.y1) {
+			if(j1+itemHeight >= this.getY() && j1 <= this.getBottom()) {
 				getEntry(i).tick();
 			}
 		}
 	}
 	
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		value.update(partialTicks);
 		super.setScrollAmount(value.getValue());
-		super.render(graphics, mouseX, mouseY, partialTicks);
+		super.renderWidget(graphics, mouseX, mouseY, partialTicks);
 	}
 	
 	public void setCustomBackground(BackgroundHolder customBackground) {
@@ -194,7 +196,7 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	@Override
 	protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 		if(customBackground != null && (minecraft.level == null || !customBackground.shouldDisableInLevel())) {
-			renderBackground(x0, x1, y0, y1, (float)getScrollAmount(), customBackground.getTexture());			
+			renderBackground(getX(), getRight(), getY(), getBottom(), (float)getScrollAmount(), customBackground.getTexture());			
 		}
 		super.renderList(graphics, mouseX, mouseY, partialTicks);
 	}
@@ -202,10 +204,10 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	@Override
 	protected void renderDecorations(GuiGraphics graphics, int mouseX, int mouseY) {
 		if(customBackground == null) return;
-		renderListOverlay(x0, x1, y0, y1, width, height, customBackground.getTexture());
+		renderListOverlay(getX(), getRight(), getY(), getBottom(), width, endY, customBackground.getTexture());
 	}
 	
-	public static void renderListOverlay(int x0, int x1, int y0, int y1, int width, int height, BackgroundTexture texture) {
+	public static void renderListOverlay(int x0, int x1, int y0, int y1, int width, int endY, BackgroundTexture texture) {
 		Tesselator tes = Tesselator.getInstance();
 		BufferBuilder builder = tes.getBuilder();
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
@@ -218,8 +220,8 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 		builder.vertex(x0 + width, y0, -100D).uv(width / 32F, y0 / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x0 + width, 0D, -100D).uv(width / 32F, 0F).color(color, color, color, 255).endVertex();
 		builder.vertex(x0, 0D, -100D).uv(0F, 0F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0, height, -100D).uv(0F, height / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0 + width, height, -100D).uv(width / 32F, height / 32F).color(color, color, color, 255).endVertex();
+		builder.vertex(x0, endY, -100D).uv(0F, endY / 32F).color(color, color, color, 255).endVertex();
+		builder.vertex(x0 + width, endY, -100D).uv(width / 32F, endY / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x0 + width, y1, -100D).uv(width / 32F, y1 / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x0, y1, -100D).uv(0F, y1 / 32F).color(color, color, color, 255).endVertex();
 		tes.end();

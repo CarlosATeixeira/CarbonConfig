@@ -61,7 +61,7 @@ public abstract class ListScreen extends Screen implements IListOwner
 		super.init();
 		clearWidgets();
 		allEntries.clear();
-		visibleList = new ElementList(width, height, getHeaderSpace(), height - getFooterSpace(), getElementHeight());
+		visibleList = new ElementList(width, height - getFooterSpace() - getHeaderSpace(), getHeaderSpace(), height, getElementHeight());
 		visibleList.setCustomBackground(customTexture);
 		visibleList.setListWidth(getListWidth());
 		visibleList.setScrollPadding(getScrollPadding());

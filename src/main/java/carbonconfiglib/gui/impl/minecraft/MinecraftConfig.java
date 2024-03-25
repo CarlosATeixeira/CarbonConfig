@@ -20,6 +20,7 @@ import carbonconfiglib.networking.minecraft.RequestGameRulesPacket;
 import carbonconfiglib.networking.minecraft.SaveGameRulesPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -167,7 +168,7 @@ public class MinecraftConfig implements IModConfig
 	@Override
 	public IModConfig loadFromFile(Path path) {
 		if(Files.notExists(path)) return null;
-		try { return new FileConfig(path, NbtIo.readCompressed(path.toFile())); }
+		try { return new FileConfig(path, NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap())); }
 		catch(Exception e) { e.printStackTrace(); }
 		return null;
 	}
@@ -200,7 +201,7 @@ public class MinecraftConfig implements IModConfig
 		public void save() {
 			tag.getCompound("Data").put("GameRules", current.createTag());
 			try {
-				NbtIo.writeCompressed(tag, file.toFile());
+				NbtIo.writeCompressed(tag, file);
 			}
 			catch(Exception e) {
 				e.printStackTrace();
