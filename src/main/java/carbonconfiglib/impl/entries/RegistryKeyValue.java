@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import carbonconfiglib.api.ISuggestionProvider;
@@ -16,7 +17,7 @@ import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
 import carbonconfiglib.utils.structure.IStructuredData;
 import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
-import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
+import carbonconfiglib.utils.structure.StructureList.ListBuilder;
 import cpw.mods.fml.common.registry.FMLControlledNamespacedRegistry;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 import speiger.src.collections.objects.sets.ObjectLinkedOpenHashSet;
@@ -93,9 +94,14 @@ public class RegistryKeyValue extends CollectionConfigEntry<String, Set<String>>
 		return ParseResult.success(true);
 	}
 	
+	private ParseResult<String> parseEntry(String value) {
+		if(!registry.containsKey(value) || (filter != null && !filter.test(value))) return ParseResult.error(value, "Id ["+value+"] isn't valid");
+		return ParseResult.success(value);
+	}
+	
 	@Override
 	public IStructuredData getDataType() {
-		return SimpleData.variant(EntryDataType.STRING, clz);
+		return ListBuilder.variants(EntryDataType.STRING, String.class, this::parseEntry, Function.identity()).build(true);
 	}
 	
 	@Override
