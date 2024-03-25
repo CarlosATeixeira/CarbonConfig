@@ -60,6 +60,7 @@ public class ListSelectionScreen extends ListScreen
 	protected void init() {
 		super.init();
 		loadDefault();
+		visibleList.setShouldSelectEntry(true);
 		visibleList.setCallback(T -> setValue(((SelectionElement)T).getSuggestion().getValue()));
 		int x = width / 2 - 100;
 		int y = height;
