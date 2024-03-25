@@ -1,12 +1,12 @@
 package carbonconfiglib.gui.widgets;
 
-import java.util.function.Supplier;
-
 import carbonconfiglib.gui.config.ConfigElement.GuiAlign;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -25,6 +25,7 @@ import net.minecraft.network.chat.Component;
  */
 public class CarbonButton extends Button
 {
+	private static final WidgetSprites SPRITES = new WidgetSprites(new ResourceLocation("widget/button"), new ResourceLocation("widget/button_disabled"), new ResourceLocation("widget/button_highlighted"));
 	int hash;
 
 	public CarbonButton(int i, int j, int k, int l, Component component, OnPress onPress, CreateNarration createNarration) {
@@ -33,25 +34,13 @@ public class CarbonButton extends Button
 	}
 
 	public CarbonButton(int i, int j, int k, int l, Component component, OnPress onPress) {
-		this(i, j, k, l, component, onPress, Supplier::get);
+		this(i, j, k, l, component, onPress, DEFAULT_NARRATION);
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics poseStack, int mouseX, int mouseY, float partialTick) {
+	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		Minecraft mc = Minecraft.getInstance();
-		int k = this.getYImage(this.isHovered);
-		GuiUtils.drawTextureWithBorder(poseStack, WIDGETS_LOCATION, this.getX(), this.getY(), 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2);
-		GuiUtils.drawScrollingShadowString(poseStack, mc.font, getMessage(), getX(), getY(), width, height-2, GuiAlign.CENTER, this.active ? 16777215 : 10526880, hash);
-	}
-
-	protected int getYImage(boolean isHovered) {
-		int i = 1;
-		if (!this.active) {
-			i = 0;
-		} else if (isHovered) {
-			i = 2;
-		}
-
-		return i;
+	    graphics.blitSprite(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		GuiUtils.drawScrollingShadowString(graphics, mc.font, getMessage(), getX(), getY(), width, height-2, GuiAlign.CENTER, this.active ? 16777215 : 10526880, hash);
 	}
 }

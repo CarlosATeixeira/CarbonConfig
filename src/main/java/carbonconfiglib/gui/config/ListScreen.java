@@ -89,26 +89,26 @@ public abstract class ListScreen extends Screen implements IListOwner
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(stack);
-		super.render(stack, mouseX, mouseY, partialTicks);
-		GuiUtils.drawTextureRegion(stack, 5, 5, 40, 40, Icon.LOGO, 400, 400);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+		renderBackground(graphics, mouseX, mouseY, partialTicks);
+		super.render(graphics, mouseX, mouseY, partialTicks);
+		GuiUtils.drawTextureRegion(graphics, 5, 5, 40, 40, Icon.LOGO, 400, 400);
 		if(mouseX >= 5 && mouseX <= 45 && mouseY >= 5 && mouseY <= 40) {
 			addTooltips(LOG_INFO);
 		}
-		handleForground(stack, mouseX, mouseY, partialTicks);
+		handleForground(graphics, mouseX, mouseY, partialTicks);
 		if(!tooltips.isEmpty()) {
 			List<FormattedCharSequence> text = new ObjectArrayList<>();
 			for(Component entry : tooltips) {
 				text.addAll(font.split(entry, Math.max(mouseX, width - mouseX) - 20));
 			}
-			stack.renderTooltip(font, text, mouseX, mouseY);
+			graphics.renderTooltip(font, text, mouseX, mouseY);
 			tooltips.clear();
 		}
 
 	}
 	
-	public void handleForground(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
+	public void handleForground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
 	}
 	
 	@Override

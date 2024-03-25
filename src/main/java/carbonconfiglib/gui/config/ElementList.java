@@ -46,15 +46,19 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	int lastTick = 0;
 	boolean isScrolling;
 	SmoothFloat value = new SmoothFloat(0.8F);
+	boolean shouldSelect = false;
 	
 	public ElementList(int width, int height, int screenY, int listY, int itemHeight) {
 		super(Minecraft.getInstance(), width, height, screenY, listY, itemHeight);
-		setRenderSelection(false);
 	}
 	
 	@Override
 	protected boolean isSelectedItem(int index) {
-		return Objects.equals(this.getSelected(), this.children().get(index));
+		return shouldSelect && Objects.equals(this.getSelected(), this.children().get(index));
+	}
+	
+	public void setShouldSelectEntry(boolean value) {
+		this.shouldSelect = value;
 	}
 	
 	public void setCallback(Consumer<Element> callback) {
@@ -158,11 +162,11 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double otherScroll, double scroll) {
 		this.setScrollAmount(this.getScrollAmount() - scroll * (double)this.itemHeight * 2);
 		return true;
 	}
-	
+		
 	public void tick() {
 		lastTick++;
 		int max = this.getItemCount();
@@ -185,13 +189,14 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	public void setCustomBackground(BackgroundHolder customBackground) {
 		this.customBackground = customBackground;
 		setRenderBackground(this.customBackground == null);
-		setRenderTopAndBottom(this.customBackground == null);
 	}
 	
 	@Override
-	protected void renderBackground(GuiGraphics graphics) {
-		if(customBackground == null || (minecraft.level != null && customBackground.shouldDisableInLevel())) return;
-		renderBackground(x0, x1, y0, y1, (float)getScrollAmount(), customBackground.getTexture());
+	protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+		if(customBackground != null && (minecraft.level == null || !customBackground.shouldDisableInLevel())) {
+			renderBackground(x0, x1, y0, y1, (float)getScrollAmount(), customBackground.getTexture());			
+		}
+		super.renderList(graphics, mouseX, mouseY, partialTicks);
 	}
 	
 	@Override

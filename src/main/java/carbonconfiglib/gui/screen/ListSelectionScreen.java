@@ -59,8 +59,8 @@ public class ListSelectionScreen extends ListScreen
 	@Override
 	protected void init() {
 		super.init();
-		visibleList.setRenderSelection(true);
 		loadDefault();
+		visibleList.setShouldSelectEntry(true);
 		visibleList.setCallback(T -> setValue(((SelectionElement)T).getSuggestion().getValue()));
 		int x = width / 2 - 100;
 		int y = height;
