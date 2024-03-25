@@ -71,7 +71,7 @@ public class ColorElement extends ConfigElement
 			GuiComponent.fill(poseStack, left+187, top, left+202, top+18, (int)(Long.decode(value.get()) | 0xFF000000L));
 		}
 		else {
-			int xOff = isCompound() ? 194 : 186;
+			int xOff = isCompound() ? 194 : 207;
 			GuiComponent.fill(poseStack, left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
 			GuiComponent.fill(poseStack, left+xOff+1, top, left+xOff+16, top+18, (int)(Long.decode(value.get()) | 0xFF000000L));
 		}
