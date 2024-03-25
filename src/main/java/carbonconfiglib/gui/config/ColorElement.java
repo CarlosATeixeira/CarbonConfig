@@ -76,7 +76,7 @@ public class ColorElement extends ConfigElement
 			Gui.drawRect(left+187, top, left+202, top+18, Integer.decode(value.get()) | 0xFF000000);
 		}
 		else {
-			int xOff = isCompound() ? 194 : 186;
+			int xOff = isCompound() ? 194 : 207;
 			Gui.drawRect(left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
 			Gui.drawRect(left+xOff+1, top, left+xOff+16, top+18, Integer.decode(value.get()) | 0xFF000000);
 		}

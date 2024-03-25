@@ -16,7 +16,7 @@ import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
 import carbonconfiglib.utils.structure.IStructuredData;
 import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
-import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
+import carbonconfiglib.utils.structure.StructureList.ListBuilder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
 import speiger.src.collections.objects.lists.ObjectArrayList;
@@ -94,9 +94,15 @@ public class RegistryKeyValue extends CollectionConfigEntry<ResourceLocation, Se
 		return ParseResult.success(true);
 	}
 	
+	private ParseResult<ResourceLocation> parseEntry(String value) {
+		ResourceLocation location = new ResourceLocation(value);
+		if(!registry.containsKey(location) || (filter != null && !filter.test(location))) return ParseResult.error(value, "Id ["+value+"] isn't valid");
+		return ParseResult.success(location);
+	}
+	
 	@Override
 	public IStructuredData getDataType() {
-		return SimpleData.variant(EntryDataType.STRING, clz);
+		return ListBuilder.variants(EntryDataType.STRING, ResourceLocation.class, this::parseEntry, ResourceLocation::toString).build(true);
 	}
 	
 	@Override
