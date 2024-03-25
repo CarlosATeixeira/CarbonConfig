@@ -1,17 +1,23 @@
 package carbonconfiglib.impl.entries;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import carbonconfiglib.api.ISuggestionProvider.Suggestion;
 import carbonconfiglib.api.buffer.IReadBuffer;
 import carbonconfiglib.api.buffer.IWriteBuffer;
 import carbonconfiglib.config.ConfigEntry.BasicConfigEntry;
 import carbonconfiglib.impl.entries.ColorValue.ColorWrapper;
+import carbonconfiglib.utils.Helpers;
 import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
 import carbonconfiglib.utils.structure.IStructuredData;
 import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
 import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
+import net.minecraft.util.text.Color;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 
 /**
@@ -38,6 +44,19 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 	@Override
 	protected ColorValue copy() {
 		return new ColorValue(getKey(), get(), getComment());
+	}
+	
+	public ColorValue addMCChatFormatSuggestions() {
+		addSuggestionProvider(this::addMCColorPalette);
+		return this;
+	}
+	
+	private void addMCColorPalette(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
+		for(TextFormatting formatting : TextFormatting.values()) {
+			if(!formatting.isColor()) continue;
+			Suggestion value = Suggestion.namedTypeValue(Helpers.firstLetterUppercase(formatting.getName()), ColorWrapper.serializeRGB(formatting.getColor()), ColorWrapper.class);
+			if(filter.test(value)) result.accept(value);
+		}
 	}
 	
 	public final ColorValue addSuggestions(int... values) {
@@ -73,6 +92,14 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 	
 	public int getRGBA() {
 		return getValue().getColor() & 0xFFFFFFFF;
+	}
+	
+	public Color getMCColor() {
+		return Color.fromRgb(getRGB());
+	}
+	
+	public Style getMCStyle() {
+		return Style.EMPTY.withColor(getMCColor());
 	}
 	
 	public String toHex() {

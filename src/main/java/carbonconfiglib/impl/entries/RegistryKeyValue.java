@@ -16,7 +16,6 @@ import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
 import carbonconfiglib.utils.structure.IStructuredData;
 import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
-import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
 import carbonconfiglib.utils.structure.StructureList.ListBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -97,9 +96,16 @@ public class RegistryKeyValue extends CollectionConfigEntry<ResourceLocation, Se
 		return ParseResult.success(true);
 	}
 	
+	private ParseResult<ResourceLocation> parseEntry(String value) {
+		ResourceLocation location = ResourceLocation.tryParse(value);
+		if(location == null) return ParseResult.error(value, "Id ["+value+"] isn't a valid resource location");
+		if(!registry.containsKey(location) || (filter != null && !filter.test(location))) return ParseResult.error(value, "Id ["+value+"] isn't valid");
+		return ParseResult.success(location);
+	}
+	
 	@Override
 	public IStructuredData getDataType() {
-		return ListBuilder.variants(SimpleData.variant(EntryDataType.STRING, clz)).build(true);
+		return ListBuilder.variants(EntryDataType.STRING, ResourceLocation.class, this::parseEntry, ResourceLocation::toString).build(true);
 	}
 	
 	@Override

@@ -26,7 +26,7 @@ import net.minecraft.util.text.TranslationTextComponent;
  */
 public class SelectionElement extends ConfigElement
 {
-	Button textBox = addChild(new CarbonButton(0, 0, 72, 18, new TranslationTextComponent("gui.carbonconfig.edit"), this::onPress));
+	Button textBox = addChild(new CarbonButton(0, 0, isCompound() ? 105 : 72, 18, new TranslationTextComponent("gui.carbonconfig.edit"), this::onPress));
 	
 	public SelectionElement(IValueNode value) {
 		super(value);

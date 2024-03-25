@@ -46,6 +46,7 @@ public interface IConfigNode
 	public static StringTextComponent createLabel(String name) {
 		StringTextComponent comp = new StringTextComponent("");
 		for(String s : name.split("\\-|\\_|(?<!^)(?=[A-Z][a-z])|(?<!(^|[A-Z]))(?=[A-Z])")) {
+			if(s.isEmpty()) continue;
 			String first = Character.toString(s.charAt(0));
 			comp.append(s.replaceFirst(first, first.toUpperCase())).append(" ");
 		}

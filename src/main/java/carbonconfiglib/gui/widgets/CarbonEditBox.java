@@ -30,6 +30,7 @@ public class CarbonEditBox extends TextFieldWidget implements IOwnable
 	
 	public CarbonEditBox(FontRenderer font, int x, int y, int width, int height) {
 		super(font, x, y, width, height, new StringTextComponent(""));
+		setMaxLength(65536);
 	}
 	
 	public CarbonEditBox setInnerDiff(int innerDiff) {
