@@ -63,13 +63,14 @@ public final class PerWorldProxy implements IConfigProxy
 	}
 	
 	@Override
-	public List<Path> getBasePaths() {
-		List<Path> paths = new ObjectArrayList<>();
+	public Path getBasePaths(Path relativeFile) {
 		MinecraftServer server = EventHandler.getServer();
-		if(server != null) paths.add(server.getWorldPath(LevelResource.ROOT).resolve("serverconfig"));
-		else if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) paths.add(baseClientPath);
-		paths.add(baseServerPath);
-		return paths;
+		if(server != null) {
+			Path path = server.getWorldPath(LevelResource.ROOT).resolve("serverconfig");
+			if(Files.exists(path.resolve(relativeFile))) return path;
+		}
+		else if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT && CarbonConfig.NETWORK.isInWorld()) return baseClientPath;
+		return baseServerPath;
 	}
 	
 	@Override
