@@ -61,7 +61,8 @@ public abstract class ListScreen extends Screen implements IListOwner
 	@Override
 	protected void init() {
 		super.init();
-		clearWidgets();
+		buttons.clear();
+		children.clear();
 		allEntries.clear();
 		visibleList = new ElementList(width, height, getHeaderSpace(), height - getFooterSpace(), getElementHeight());
 		visibleList.setCustomBackground(customTexture);
@@ -69,12 +70,12 @@ public abstract class ListScreen extends Screen implements IListOwner
 		visibleList.setScrollPadding(getScrollPadding());
 		collectElements(this::addEntry);
 		visibleList.addElements(sortElements(allEntries));
-		addRenderableWidget(visibleList);
+		addWidget(visibleList);
 		if(shouldHaveSearch()) {
 			searchBox = new CarbonEditBox(font, width / 2 - 100, 25, 200, 20);
 			searchBox.setSuggestion(I18n.get("gui.carbonconfig.search"));
 			searchBox.setResponder(T -> onSearchChange(searchBox, T.toLowerCase(Locale.ROOT)));
-			addRenderableWidget(searchBox);
+			addWidget(searchBox);
 		}
 		if(lastScroll >= 0D) visibleList.setScrollAmount(lastScroll);
 	}
@@ -93,6 +94,7 @@ public abstract class ListScreen extends Screen implements IListOwner
 	@Override
 	public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(stack);
+		visibleList.render(stack, mouseX, mouseY, partialTicks);
 		super.render(stack, mouseX, mouseY, partialTicks);
 		GuiUtils.drawTextureRegion(stack, 5, 5, 40, 40, Icon.LOGO, 400, 400);
 		if(mouseX >= 5 && mouseX <= 45 && mouseY >= 5 && mouseY <= 40) {

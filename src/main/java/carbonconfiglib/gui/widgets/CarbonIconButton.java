@@ -9,7 +9,6 @@ import carbonconfiglib.gui.config.ConfigElement.GuiAlign;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -48,13 +47,13 @@ public class CarbonIconButton extends AbstractButton
 	
 	@Override
 	public void renderButton(PoseStack stack, int mouseX, int mouseY, float p_93679_) {
-		int k = this.getYImage(this.isHoveredOrFocused());
+		int k = this.getYImage(this.isHovered());
 		GuiUtils.drawTextureWithBorder(stack, WIDGETS_LOCATION, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.getBlitOffset());
 		if(iconOnly) {
 			int j = active ? 0xFFFFFF : 0xA0A0A0;
-			RenderSystem.setShaderColor(((j >> 16) & 0xFF) / 255F, ((j >> 8) & 0xFF) / 255F, (j & 0xFF) / 255F, 1F);
+			RenderSystem.color4f(((j >> 16) & 0xFF) / 255F, ((j >> 8) & 0xFF) / 255F, (j & 0xFF) / 255F, 1F);
 			GuiUtils.drawTextureRegion(stack, x + (width / 2) - 5.5F, y+height/2-5.5F, 11, 11, icon, 16, 16);
-			RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+			RenderSystem.color4f(1F, 1F, 1F, 1F);
 			return;
 		}
 		
@@ -63,9 +62,9 @@ public class CarbonIconButton extends AbstractButton
 		int width = font.width(getMessage()) + 21;
 		float minX = x + 4 + (this.width / 2) - (width / 2);
 		int j = active ? 0xFFFFFF : 0xA0A0A0;
-		RenderSystem.setShaderColor(((j >> 16) & 0xFF) / 255F, ((j >> 8) & 0xFF) / 255F, (j & 0xFF) / 255F, 1F);
+		RenderSystem.color4f(((j >> 16) & 0xFF) / 255F, ((j >> 8) & 0xFF) / 255F, (j & 0xFF) / 255F, 1F);
 		GuiUtils.drawTextureRegion(stack, minX, y+(height-8)/2, 11, 11, icon, 16, 16);
-		RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+		RenderSystem.color4f(1F, 1F, 1F, 1F);
 		GuiUtils.drawScrollingShadowString(stack, font, getMessage(), minX+15, y, width, height-2, GuiAlign.CENTER, this.active ? 16777215 : 10526880, hash);
 	}
 	
@@ -73,10 +72,5 @@ public class CarbonIconButton extends AbstractButton
 	public void onPress() {
 		if(listener == null) return;
 		listener.accept(this);
-	}
-	
-	@Override
-	public void updateNarration(NarrationElementOutput output) {
-		defaultButtonNarrationText(output);
 	}
 }

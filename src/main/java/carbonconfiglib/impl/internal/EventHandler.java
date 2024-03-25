@@ -88,7 +88,7 @@ public class EventHandler implements IConfigChangeListener
 	private void addSharedEvents() {
 		ServerLifecycleEvents.SERVER_STARTED.register(T -> ACTIVE_SERVER = T);
 		ServerLifecycleEvents.SERVER_STOPPED.register(T -> ACTIVE_SERVER = null);
-		ServerPlayConnectionEvents.JOIN.register((K, V, J) -> onPlayerServerJoinEvent(K.getPlayer()));
+		ServerPlayConnectionEvents.JOIN.register((K, V, J) -> onPlayerServerJoinEvent(K.player));
 	}
 	
 	private boolean triggerLoad() {

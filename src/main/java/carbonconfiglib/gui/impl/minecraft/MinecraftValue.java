@@ -13,7 +13,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import speiger.src.collections.objects.utils.ObjectLists;
@@ -84,7 +83,7 @@ public class MinecraftValue implements IValueNode
 	@Override
 	public Component getTooltip() {
 		String id = entry.getDescriptionId();
-		MutableComponent result = new TextComponent("");
+		TextComponent result = new TextComponent("");
 		result.append(new TranslatableComponent(id).withStyle(ChatFormatting.YELLOW));
 		id += ".description";
 		if(I18n.exists(id)) {

@@ -33,8 +33,8 @@ import net.minecraft.world.level.GameRules.IntegerValue;
 import net.minecraft.world.level.GameRules.Key;
 import net.minecraft.world.level.GameRules.Type;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.LevelStorageException;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
 import net.minecraft.world.level.storage.LevelSummary;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 import speiger.src.collections.objects.maps.impl.hash.Object2ObjectLinkedOpenHashMap;
@@ -151,16 +151,15 @@ public class MinecraftConfig implements IModConfig
 		List<IConfigTarget> folders = new ObjectArrayList<>();
 		try {
 			for(LevelSummary sum : storage.getLevelList()) {
-				try(LevelStorageSource.LevelStorageAccess access = Minecraft.getInstance().getLevelSource().createAccess(sum.getLevelId())) {
+				try(LevelStorageAccess access = Minecraft.getInstance().getLevelSource().createAccess(sum.getLevelId())) {
 					Path path = access.getLevelPath(LevelResource.LEVEL_DATA_FILE);
 					if(Files.notExists(path)) continue;
 					folders.add(new WorldConfigTarget(new WorldTarget(sum, access.getLevelPath(LevelResource.ROOT), path), path));
 				}
 				catch(Exception e) { e.printStackTrace(); }
 			}
-		} catch (LevelStorageException e) {
-			CarbonConfig.LOGGER.error("Level loading failed", e);
 		}
+		catch(Exception e) { e.printStackTrace(); }
 		return folders;
 	}
 	

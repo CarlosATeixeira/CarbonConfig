@@ -99,18 +99,18 @@ public class ConfigScreen extends ListScreen
 		int x = width / 2 - 100;
 		int y = height;
 		if(node.isRoot()) {
-			addRenderableWidget(new CarbonButton(x-51, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.save"), this::save));
-			addRenderableWidget(new CarbonButton(x+51, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.reset"), this::reset));
-			addRenderableWidget(new CarbonButton(x+153, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
+			addButton(new CarbonButton(x-51, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.save"), this::save));
+			addButton(new CarbonButton(x+51, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.reset"), this::reset));
+			addButton(new CarbonButton(x+153, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
 		}
 		else {
-			addRenderableWidget(new CarbonButton(x+101, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
-			addRenderableWidget(new CarbonButton(x-1, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.home"), this::goToRoot));
+			addButton(new CarbonButton(x+101, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
+			addButton(new CarbonButton(x-1, y-27, 100, 20, new TranslatableComponent("gui.carbonconfig.home"), this::goToRoot));
 		}
 		if(shouldHaveSearch()) {
-			deepSearch = addRenderableWidget(new CarbonIconCheckbox(x+205, 25, 20, 20, Icon.SEARCH_SELECTED, Icon.SEARCH, false).withListener(this::onDeepSearch).setTooltip(this, "gui.carbonconfig.deepsearch"));
-			onlyChanged = addRenderableWidget(new CarbonIconCheckbox(x+227, 25, 20, 20, Icon.SET_DEFAULT, Icon.REVERT, false).withListener(this::onChangedButton).setTooltip(this, "gui.carbonconfig.changed_only"));
-			onlyNonDefault = addRenderableWidget(new CarbonIconCheckbox(x+249, 25, 20, 20, Icon.NOT_DEFAULT_SELECTED, Icon.NOT_DEFAULT, false).withListener(this::onDefaultButton).setTooltip(this, "gui.carbonconfig.default_only"));
+			deepSearch = addButton(new CarbonIconCheckbox(x+205, 25, 20, 20, Icon.SEARCH_SELECTED, Icon.SEARCH, false).withListener(this::onDeepSearch).setTooltip(this, "gui.carbonconfig.deepsearch"));
+			onlyChanged = addButton(new CarbonIconCheckbox(x+227, 25, 20, 20, Icon.SET_DEFAULT, Icon.REVERT, false).withListener(this::onChangedButton).setTooltip(this, "gui.carbonconfig.changed_only"));
+			onlyNonDefault = addButton(new CarbonIconCheckbox(x+249, 25, 20, 20, Icon.NOT_DEFAULT_SELECTED, Icon.NOT_DEFAULT, false).withListener(this::onDefaultButton).setTooltip(this, "gui.carbonconfig.default_only"));
 		}
 		String walkNode = nav.getWalkNode();
 		if(walkNode != null) {

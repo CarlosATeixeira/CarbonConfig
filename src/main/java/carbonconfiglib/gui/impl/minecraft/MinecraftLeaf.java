@@ -8,7 +8,6 @@ import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -76,11 +75,14 @@ public class MinecraftLeaf implements IConfigNode
 	@Override
 	public String getNodeName() { return null; }
 	@Override
-	public Component getName() { return IConfigNode.createLabel(I18n.get(entry.getDescriptionId())); }
+	public Component getName() {
+		return IConfigNode.createLabel(I18n.get(entry.getDescriptionId()));
+	}
+	
 	@Override
 	public Component getTooltip() {
 		String id = entry.getDescriptionId();
-		MutableComponent result = new TextComponent("");
+		TextComponent result = new TextComponent("");
 		result.append(new TranslatableComponent(id).withStyle(ChatFormatting.YELLOW));
 		id += ".description";
 		if(I18n.exists(id)) {

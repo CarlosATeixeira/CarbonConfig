@@ -4,22 +4,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import org.lwjgl.opengl.GL11;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
 import carbonconfiglib.gui.api.BackgroundTexture;
 import carbonconfiglib.gui.api.BackgroundTexture.BackgroundHolder;
 import carbonconfiglib.gui.screen.SmoothFloat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 
 /**
@@ -200,16 +198,16 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 		if(customBackground == null) return;
 		renderListOverlay(x0, x1, y0, y1, width, height, customBackground.getTexture());
 	}
-
+	
 	public static void renderListOverlay(int x0, int x1, int y0, int y1, int width, int height, BackgroundTexture texture) {
 		Tesselator tes = Tesselator.getInstance();
 		BufferBuilder builder = tes.getBuilder();
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-		RenderSystem.setShaderTexture(0, texture.getForegroundTexture());
+		Minecraft.getInstance().getTextureManager().bind(texture.getForegroundTexture());
+		RenderSystem.enableTexture();
 		RenderSystem.enableDepthTest();
 		RenderSystem.depthFunc(519);
 		int color = texture.getForegroundBrightness();
-		builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		builder.vertex(x0, y0, -100D).uv(0, y0 / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x0 + width, y0, -100D).uv(width / 32F, y0 / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x0 + width, 0D, -100D).uv(width / 32F, 0F).color(color, color, color, 255).endVertex();
@@ -221,11 +219,12 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 		tes.end();
 		RenderSystem.depthFunc(515);
 		RenderSystem.disableDepthTest();
-		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ZERO, DestFactor.ONE);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+        RenderSystem.disableAlphaTest();
+        RenderSystem.shadeModel(7425);
 		RenderSystem.disableTexture();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 		builder.vertex(x0, y0 + 4, 0D).color(0, 0, 0, 0).endVertex();
 		builder.vertex(x1, y0 + 4, 0D).color(0, 0, 0, 0).endVertex();
 		builder.vertex(x1, y0, 0D).color(0, 0, 0, 255).endVertex();
@@ -235,16 +234,17 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 		builder.vertex(x1, y1 - 4, 0D).color(0, 0, 0, 0).endVertex();
 		builder.vertex(x0, y1 - 4, 0D).color(0, 0, 0, 0).endVertex();
 		tes.end();
+		RenderSystem.enableAlphaTest();
+		RenderSystem.disableBlend();
+		RenderSystem.enableTexture();
 	}
 	
 	public static void renderBackground(int x0, int x1, int y0, int y1, float scroll, BackgroundTexture texture) {
 		Tesselator tes = Tesselator.getInstance();
 		BufferBuilder builder = tes.getBuilder();
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-		RenderSystem.setShaderTexture(0, texture.getBackgroundTexture());
-		RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+		Minecraft.getInstance().getTextureManager().bind(texture.getBackgroundTexture());
 		int color = texture.getBackgroundBrightness();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		builder.vertex(x0, y1, 0D).uv(x0 / 32F, (y1 + scroll) / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x1, y1, 0D).uv(x1 / 32F, (y1 + scroll) / 32F).color(color, color, color, 255).endVertex();
 		builder.vertex(x1, y0, 0D).uv(x1 / 32F, (y0 + scroll) / 32F).color(color, color, color, 255).endVertex();

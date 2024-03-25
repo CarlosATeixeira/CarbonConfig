@@ -56,8 +56,8 @@ public class CompoundScreen extends ListScreen
 		super.init();
 		int x = width / 2;
 		int y = height;
-		applyValue = addRenderableWidget(new CarbonButton(x-82, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.apply"), this::apply));
-		addRenderableWidget(new CarbonButton(x+2, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
+		applyValue = addButton(new CarbonButton(x-82, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.apply"), this::apply));
+		addButton(new CarbonButton(x+2, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
 	}
 	
 	@Override

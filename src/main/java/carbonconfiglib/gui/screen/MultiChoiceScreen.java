@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import carbonconfiglib.gui.widgets.CarbonButton;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
@@ -49,11 +48,6 @@ public class MultiChoiceScreen extends Screen
 	}
 	
 	@Override
-	public Component getNarrationMessage() {
-		return CommonComponents.joinForNarration(super.getNarrationMessage(), this.message);
-	}
-	
-	@Override
 	protected void init() {
 		super.init();
 		this.multilineMessage = MultiLineLabel.create(this.font, this.message, this.width - 50);
@@ -62,10 +56,10 @@ public class MultiChoiceScreen extends Screen
 	
 	protected void addButtons(int y) {
 		boolean singleOption = otherButton == null && cancelButton == null;
-		addRenderableWidget(new CarbonButton(this.width / 2 - 50 - (singleOption ? 50 : 105), y, singleOption ? 200 : 100, 20, this.mainButton, T -> callback.accept(Result.MAIN)));
+		addButton(new CarbonButton(this.width / 2 - 50 - (singleOption ? 50 : 105), y, singleOption ? 200 : 100, 20, this.mainButton, T -> callback.accept(Result.MAIN)));
 		if(singleOption) return;
-		addRenderableWidget(new CarbonButton(this.width / 2 - 50, y, 100, 20, this.otherButton, T -> callback.accept(Result.OTHER)));
-		addRenderableWidget(new CarbonButton(this.width / 2 - 50 + 105, y, 100, 20, this.cancelButton, T -> callback.accept(Result.CANCEL)));
+		addButton(new CarbonButton(this.width / 2 - 50, y, 100, 20, this.otherButton, T -> callback.accept(Result.OTHER)));
+		addButton(new CarbonButton(this.width / 2 - 50 + 105, y, 100, 20, this.cancelButton, T -> callback.accept(Result.CANCEL)));
 	}
 	
 	@Override

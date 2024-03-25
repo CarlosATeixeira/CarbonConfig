@@ -201,19 +201,19 @@ public class ConfigElement extends Element
 			owner.addTooltips(value.getTooltip());
 		}
 		if(isArray()) {
-			if(setReset.isHoveredOrFocused() && owner.isInsideList(mouseX, mouseY)) {
+			if(setReset.isHovered() && owner.isInsideList(mouseX, mouseY)) {
 				owner.addTooltips(DELETE);
 			}
 		}
 		else {
-			if(setReset.isHoveredOrFocused() && owner.isInsideList(mouseX, mouseY)) {
+			if(setReset.isHovered() && owner.isInsideList(mouseX, mouseY)) {
 				owner.addTooltips(REVERT);
 			}
-			if(setDefault.isHoveredOrFocused() && owner.isInsideList(mouseX, mouseY)) {
+			if(setDefault.isHovered() && owner.isInsideList(mouseX, mouseY)) {
 				owner.addTooltips(DEFAULT);
 			}
 			suggestion.visible = hasSuggestions();
-			if(suggestion.visible && suggestion.isHoveredOrFocused() & owner.isInsideList(mouseX, mouseY)) {
+			if(suggestion.visible && suggestion.isHovered() & owner.isInsideList(mouseX, mouseY)) {
 				owner.addTooltips(SUGGESTIONS);
 			}
 		}

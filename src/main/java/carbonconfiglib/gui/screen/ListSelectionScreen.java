@@ -67,8 +67,8 @@ public class ListSelectionScreen extends ListScreen
 		visibleList.setCallback(T -> setValue(((SelectionElement)T).getSuggestion().getValue()));
 		int x = width / 2 - 100;
 		int y = height;
-		apply = addRenderableWidget(new CarbonButton(x+10, y-27, 85, 20, new TranslatableComponent("gui.carbonconfig.pick"), this::save));
-		addRenderableWidget(new CarbonButton(x+105, y-27, 85, 20, new TranslatableComponent("gui.carbonconfig.cancel"), this::cancel));
+		apply = addButton(new CarbonButton(x+10, y-27, 85, 20, new TranslatableComponent("gui.carbonconfig.pick"), this::save));
+		addButton(new CarbonButton(x+105, y-27, 85, 20, new TranslatableComponent("gui.carbonconfig.cancel"), this::cancel));
 	}
 	
 	public ListSelectionScreen withListener(Runnable success, Runnable abort) {

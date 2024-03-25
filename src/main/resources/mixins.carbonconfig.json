@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "carbonconfiglib.mixins",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_8",
   "plugin": "carbonconfiglib.mixins.MixinConfig",
   "client": [
     "ModMenuMixin"

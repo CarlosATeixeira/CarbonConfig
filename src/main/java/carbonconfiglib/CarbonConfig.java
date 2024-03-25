@@ -2,10 +2,9 @@ package carbonconfiglib;
 
 import java.util.function.Consumer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
 
 import carbonconfiglib.api.ConfigType;
 import carbonconfiglib.config.Config;
@@ -60,7 +59,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class CarbonConfig implements ModInitializer
 {
-	public static final Logger LOGGER = LogUtils.getLogger();
+	public static final Logger LOGGER = LogManager.getLogger("CarbonConfig");
 	private static final FileSystemWatcher CONFIGS = new FileSystemWatcher(new ConfigLogger(LOGGER), FabricLoader.getInstance().getConfigDir(), EventHandler.INSTANCE);
 	public static final CarbonNetwork NETWORK = new CarbonNetwork();
 	ConfigHandler handler;

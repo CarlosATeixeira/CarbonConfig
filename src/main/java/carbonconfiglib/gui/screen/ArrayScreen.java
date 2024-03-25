@@ -58,9 +58,9 @@ public class ArrayScreen extends ListScreen
 		super.init();
 		int x = width / 2;
 		int y = height;
-		addRenderableWidget(new CarbonButton(x-92, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.apply"), this::apply));
-		addRenderableWidget(new CarbonButton(x-10, y-27, 20, 20, new TextComponent("+"), this::createEntry));
-		addRenderableWidget(new CarbonButton(x+12, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
+		addButton(new CarbonButton(x-92, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.apply"), this::apply));
+		addButton(new CarbonButton(x-10, y-27, 20, 20, new TextComponent("+"), this::createEntry));
+		addButton(new CarbonButton(x+12, y-27, 80, 20, new TranslatableComponent("gui.carbonconfig.back"), this::goBack));
 	}
 	
 	@Override

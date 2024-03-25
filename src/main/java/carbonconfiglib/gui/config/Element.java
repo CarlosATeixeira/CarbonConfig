@@ -12,9 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.narration.NarratedElementType;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -87,20 +84,5 @@ public class Element extends ContainerObjectSelectionList.Entry<Element> {
 	@Override
 	public List<? extends GuiEventListener> children() {
 		return ObjectLists.emptyList();
-	}
-	
-	@Override
-	public List<? extends NarratableEntry> narratables() {
-		return ObjectLists.singleton(new NarratableEntry() {
-			@Override
-			public NarrationPriority narrationPriority() {
-                return NarrationPriority.HOVERED;
-            }
-			
-            @Override
-            public void updateNarration(NarrationElementOutput output) {
-                output.add(NarratedElementType.TITLE, name);
-            }
-        });
 	}
 }

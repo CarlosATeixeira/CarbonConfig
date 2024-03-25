@@ -49,7 +49,5 @@ public class MinecraftFolder implements IConfigFolderNode {
 	@Override
 	public String getNodeName() { return cat.name().toLowerCase(Locale.ROOT); }
 	@Override
-	public Component getName() {
-		return new TranslatableComponent(cat.getDescriptionId());
-	}
+	public Component getName() { return new TranslatableComponent(cat.getDescriptionId()); }
 }

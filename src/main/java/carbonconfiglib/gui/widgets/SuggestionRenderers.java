@@ -70,11 +70,11 @@ public class SuggestionRenderers
 			if(fluid == Fluids.EMPTY || fluid == null) return null;
 			TextureAtlasSprite sprite = getSprite(fluid);
 			if(sprite == null) return null;
-			RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+			Minecraft.getInstance().getTextureManager().bind(InventoryMenu.BLOCK_ATLAS);
 			int color = FluidRenderHandlerRegistry.INSTANCE.get(fluid).getFluidColor(null, null, fluid.defaultFluidState());
-			RenderSystem.setShaderColor((color >> 16 & 255) / 255F, (color >> 8 & 255) / 255F, (color & 255) / 255F, 1F);
+			RenderSystem.color4f((color >> 16 & 255) / 255F, (color >> 8 & 255) / 255F, (color & 255) / 255F, 1F);
 			GuiComponent.blit(stack, x, y, 0, 18, 18, sprite);
-			RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+			RenderSystem.color4f(1F, 1F, 1F, 1F);
 			return getDescription(fluid).withStyle(ChatFormatting.YELLOW).append("\n").append(new TextComponent(id.toString()).withStyle(ChatFormatting.GRAY));
 		}
 		

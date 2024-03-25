@@ -75,7 +75,7 @@ public interface IGameRuleValue
 		public void set(String value) {
 			ParseResult<Integer> result = Helpers.parseInt(value);
 			if(result.isValid()) {
-				this.value.set(result.getValue(), null);
+				this.value.tryDeserialize(result.getValue().toString());
 			}
 		}
 		
