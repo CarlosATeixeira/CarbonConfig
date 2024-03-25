@@ -46,6 +46,7 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	int lastTick = 0;
 	boolean isScrolling;
 	SmoothFloat value = new SmoothFloat(0.8F);
+	boolean shouldSelect = false;
 	
 	public ElementList(int width, int height, int screenY, int listY, int itemHeight) {
 		super(Minecraft.getInstance(), width, height, screenY, listY, itemHeight);
@@ -53,7 +54,11 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	
 	@Override
 	protected boolean isSelectedItem(int index) {
-		return Objects.equals(this.getSelected(), this.children().get(index));
+		return shouldSelect && Objects.equals(this.getSelected(), this.children().get(index));
+	}
+	
+	public void setShouldSelectEntry(boolean value) {
+		this.shouldSelect = value;
 	}
 	
 	public void setCallback(Consumer<Element> callback) {
