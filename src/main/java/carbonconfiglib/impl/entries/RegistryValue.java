@@ -16,7 +16,7 @@ import carbonconfiglib.utils.MultilinePolicy;
 import carbonconfiglib.utils.ParseResult;
 import carbonconfiglib.utils.structure.IStructuredData;
 import carbonconfiglib.utils.structure.IStructuredData.EntryDataType;
-import carbonconfiglib.utils.structure.IStructuredData.SimpleData;
+import carbonconfiglib.utils.structure.StructureList.ListBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
@@ -96,9 +96,15 @@ public class RegistryValue<T extends IForgeRegistryEntry<T>> extends CollectionC
 		return ParseResult.success(true);
 	}
 	
+	private ParseResult<T> parseEntry(String value) {
+		T entry = registry.getValue(new ResourceLocation(value));
+		if(entry == null || (filter != null && !filter.test(entry))) return ParseResult.error(value, "Id ["+value+"] isn't valid");
+		return ParseResult.success(entry);
+	}
+	
 	@Override
 	public IStructuredData getDataType() {
-		return SimpleData.variant(EntryDataType.STRING, clz);
+		return ListBuilder.variants(EntryDataType.STRING, clz, this::parseEntry, T -> registry.getKey(T).toString()).build(true);
 	}
 
 	@Override

@@ -35,6 +35,8 @@ public class CarbonEditBox extends GuiTextField implements IOwnable, GuiResponde
 	public CarbonEditBox(FontRenderer font, int x, int y, int width, int height) {
 		super(0, font, x, y, width, height);
 		this.setGuiResponder(this);
+		setCanLoseFocus(true);
+		setMaxStringLength(65536);
 	}
 	
 	public CarbonEditBox setInnerDiff(int innerDiff) {
