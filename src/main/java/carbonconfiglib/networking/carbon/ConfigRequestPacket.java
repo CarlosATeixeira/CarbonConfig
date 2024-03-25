@@ -7,11 +7,8 @@ import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.MultilinePolicy;
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -54,7 +51,7 @@ public class ConfigRequestPacket implements ICarbonPacket
 	
 	@Override
 	public void process(Player player) {
-		if(!canIgnorePermissionCheck() && !player.hasPermissions(4)) {
+		if(!CarbonConfig.hasPermission(player, 4)) {
 			return;
 		}
 		ConfigHandler handler = CarbonConfig.CONFIGS.getConfig(identifier);
@@ -64,10 +61,5 @@ public class ConfigRequestPacket implements ICarbonPacket
 		byte[] data = new byte[buf.writerIndex()];
 		buf.readBytes(data);
 		CarbonConfig.NETWORK.sendToPlayer(new ConfigAnswerPacket(id, data), player);
-	}
-	
-	private boolean canIgnorePermissionCheck() {
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		return !server.isDedicatedServer() && (server instanceof IntegratedServer ? ((IntegratedServer)server).isPublished() : false);
 	}
 }

@@ -109,8 +109,8 @@ public class SuggestionRenderers
 		@Override
 		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			try {
-				graphics.fill(x+1, y+1, x+18, y+19, 0xFFA0A0A0);
-				graphics.fill(x+2, y+2, x+17, y+18, Long.decode(value).intValue() | 0xFF000000);
+				graphics.fill(x+1, y+-1, x+18, y+17, 0xFFA0A0A0);
+				graphics.fill(x+2, y, x+17, y+16, Long.decode(value).intValue() | 0xFF000000);
 			}
 			catch(Exception e) {
 			}
