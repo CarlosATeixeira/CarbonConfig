@@ -15,7 +15,7 @@ apply plugin: 'maven-publish'
 
 version = MC_VERSION + '-' + MOD_VERSION
 group = 'carbonconfiglib'
-archivesBaseName = 'Carbon Config'
+archivesBaseName = 'CarbonConfig'
 
 eclipse {
 	classpath {
