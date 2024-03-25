@@ -47,7 +47,7 @@ public class CompoundElement extends ConfigElement
 	@Override
 	public void init() {
 		super.init();
-		textBox = addChild(new CarbonButton(0, 0, isArray() ? 144 : 72, 18, new TranslatableComponent("gui.carbonconfig.edit"), this::onPress));
+		textBox = addChild(new CarbonButton(0, 0, isArray() ? 190 : isCompound() ? 105 : 72, 18, new TranslatableComponent("gui.carbonconfig.edit"), this::onPress), isArray() ? GuiAlign.CENTER : GuiAlign.RIGHT, 0);
 	}
 	
 	private void onPress(Button button) {

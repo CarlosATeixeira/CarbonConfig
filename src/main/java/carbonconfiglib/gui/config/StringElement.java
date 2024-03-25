@@ -66,7 +66,7 @@ public class StringElement extends ConfigElement
 			});
 		}
 		else {
-			addChild(new CarbonButton(0, 0, 72, 18, new TranslatableComponent("gui.carbonconfig.edit"), this::onPress));
+			addChild(new CarbonButton(0, 0, isCompound() ? 105 : 72, 18, new TranslatableComponent("gui.carbonconfig.edit"), this::onPress));
 		}
 	}
 	
