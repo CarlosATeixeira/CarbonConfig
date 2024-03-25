@@ -8,6 +8,7 @@ import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.MultilinePolicy;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -27,10 +28,14 @@ import net.minecraft.world.entity.player.Player;
  */
 public class ConfigRequestPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "request_carbon");
 	UUID id;
 	String identifier;
 	
-	public ConfigRequestPacket() {}
+	public ConfigRequestPacket(FriendlyByteBuf buffer) {
+		id = buffer.readUUID();
+		identifier = buffer.readUtf(32767);
+	}
 	
 	public ConfigRequestPacket(UUID id, String identifier) {
 		this.id = id;
@@ -44,10 +49,7 @@ public class ConfigRequestPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		id = buffer.readUUID();
-		identifier = buffer.readUtf(32767);
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

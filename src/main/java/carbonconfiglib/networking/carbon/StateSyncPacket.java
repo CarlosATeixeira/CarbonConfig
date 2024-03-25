@@ -5,6 +5,7 @@ import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.impl.internal.EventHandler;
 import carbonconfiglib.networking.ICarbonPacket;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 
@@ -25,22 +26,24 @@ import net.neoforged.api.distmarker.Dist;
  */
 public class StateSyncPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "state");
 	Dist source;
 	
-	public StateSyncPacket() {}
 	public StateSyncPacket(Dist source) {
 		this.source = source;
 	}
-
+	
+	public StateSyncPacket(FriendlyByteBuf buffer) {
+		source = buffer.readBoolean() ? Dist.CLIENT : Dist.DEDICATED_SERVER;
+	}
+	
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(source.isClient());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		source = buffer.readBoolean() ? Dist.CLIENT : Dist.DEDICATED_SERVER;
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

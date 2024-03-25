@@ -6,6 +6,7 @@ import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.networking.ICarbonPacket;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
@@ -28,22 +29,24 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public class SaveGameRulesPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "save_mc");
 	GameRules rules;
 	
-	public SaveGameRulesPacket() {}
 	public SaveGameRulesPacket(GameRules rules) {
 		this.rules = rules;
 	}
-
+	
+	public SaveGameRulesPacket(FriendlyByteBuf buffer) {
+		rules = new GameRules(new Dynamic<>(NbtOps.INSTANCE, buffer.readNbt()));
+	}
+	
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeNbt(rules.createTag());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		rules = new GameRules(new Dynamic<>(NbtOps.INSTANCE, buffer.readNbt()));
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

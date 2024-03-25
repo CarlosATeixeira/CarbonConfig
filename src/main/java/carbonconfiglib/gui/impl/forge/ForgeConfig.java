@@ -30,10 +30,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
-import net.neoforged.fml.ModList;
+import net.neoforged.fml.config.IConfigEvent;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.config.ModConfig.Type;
-import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
@@ -172,7 +171,7 @@ public class ForgeConfig implements IModConfig
 		}
 		config.save();
         config.getSpec().afterReload();
-        ModList.get().getModContainerById(config.getModId()).get().dispatchConfigEvent(new ModConfigEvent.Reloading(this.config));
+        IConfigEvent.reloading(config).post();
 	}
 	
 	private List<ConfigValue<?>> collect() {

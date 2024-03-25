@@ -5,6 +5,7 @@ import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.networking.ICarbonPacket;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -24,17 +25,20 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SaveConfigPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "save_carbon");
 	String identifier;
 	String data;
-	
-	public SaveConfigPacket() {
-	}
 	
 	public SaveConfigPacket(String identifier, String data) {
 		this.identifier = identifier;
 		this.data = data;
 	}
-
+	
+	public SaveConfigPacket(FriendlyByteBuf buffer) {
+		identifier = buffer.readUtf(32767);
+		data = buffer.readUtf(262144);
+	}
+	
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUtf(identifier, 32767);
@@ -42,10 +46,7 @@ public class SaveConfigPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		identifier = buffer.readUtf(32767);
-		data = buffer.readUtf(262144);
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

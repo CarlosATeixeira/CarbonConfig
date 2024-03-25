@@ -9,6 +9,7 @@ import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.SyncType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -28,13 +29,18 @@ import net.minecraft.world.entity.player.Player;
  */
 public class BulkSyncPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "bulksync");
 	List<SyncPacket> packets = new ObjectArrayList<>();
-	
-	public BulkSyncPacket() {
-	}
 	
 	public BulkSyncPacket(List<SyncPacket> packets) {
 		this.packets = packets;
+	}
+	
+	public BulkSyncPacket(FriendlyByteBuf buffer) {
+		int size = buffer.readVarInt();
+		for(int i = 0;i<size;i++) {
+			packets.add(new SyncPacket(buffer));
+		}
 	}
 	
 	public static BulkSyncPacket create(Collection<ConfigHandler> toSync, SyncType type, boolean forceSync) {
@@ -55,14 +61,7 @@ public class BulkSyncPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		int size = buffer.readVarInt();
-		for(int i = 0;i<size;i++) {
-			SyncPacket packet = new SyncPacket();
-			packet.read(buffer);
-			packets.add(packet);
-		}
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

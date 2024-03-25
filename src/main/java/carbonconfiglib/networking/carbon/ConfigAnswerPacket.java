@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -29,16 +30,20 @@ import net.neoforged.api.distmarker.OnlyIn;
  */
 public class ConfigAnswerPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "answer");
 	UUID id;
 	byte[] data;
-	
-	public ConfigAnswerPacket() {}
 	
 	public ConfigAnswerPacket(UUID id, byte[] data) {
 		this.id = id;
 		this.data = data;
 	}
-
+	
+	public ConfigAnswerPacket(FriendlyByteBuf buffer) {
+		id = buffer.readUUID();
+		data = buffer.readByteArray();
+	}
+	
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUUID(id);
@@ -46,10 +51,7 @@ public class ConfigAnswerPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		id = buffer.readUUID();
-		data = buffer.readByteArray();
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

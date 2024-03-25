@@ -6,9 +6,9 @@ plugins {
     id 'net.darkhax.curseforgegradle' version '1.1.15'
     id 'com.modrinth.minotaur' version '2.+'
 }
-version = MC_VERSION_FULL + '-' + MOD_VERSION
+version = MC_VERSION + '-' + MOD_VERSION
 group = 'carbonconfiglib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'CarbonConfig'
+archivesBaseName = 'CarbonConfig-Neoforge'
 jarJar.enable()
 
 
@@ -57,7 +57,7 @@ repositories {
 
 
 dependencies {
-    implementation "net.neoforged:neoforge:20.2.59-beta"
+    implementation "net.neoforged:neoforge:20.4.211"
 	implementation ':Primitive Collections-0.8.9'
 	jarJar(group: 'com.github.Speiger', name: 'Primitive Collections', version: '[0.8,0.9)') {
 	 	jarJar.pin(it, "0.8.9")

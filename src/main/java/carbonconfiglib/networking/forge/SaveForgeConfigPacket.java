@@ -9,6 +9,7 @@ import carbonconfiglib.gui.impl.forge.ForgeHelpers;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.Helpers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.config.ConfigTracker;
 import net.neoforged.fml.config.ModConfig;
@@ -31,19 +32,23 @@ import net.neoforged.fml.config.ModConfig.Type;
  */
 public class SaveForgeConfigPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "save_neo");
 	ModConfig.Type type;
 	String modId;
 	byte[] data;
-	
-	public SaveForgeConfigPacket() {
-	}
 	
 	public SaveForgeConfigPacket(Type type, String modId, byte[] data) {
 		this.type = type;
 		this.modId = modId;
 		this.data = data;
 	}
-
+	
+	public SaveForgeConfigPacket(FriendlyByteBuf buffer) {
+		type = buffer.readEnum(ModConfig.Type.class);
+		modId = buffer.readUtf(32767);
+		data = buffer.readByteArray();
+	}
+	
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeEnum(type);
@@ -52,11 +57,7 @@ public class SaveForgeConfigPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		type = buffer.readEnum(ModConfig.Type.class);
-		modId = buffer.readUtf(32767);
-		data = buffer.readByteArray();
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

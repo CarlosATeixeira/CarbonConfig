@@ -174,11 +174,11 @@ public class ConfigElement extends Element
 				moveUp.setX(left + width - 16);
 				moveUp.setY(top);
 				moveUp.visible = canMoveUp();
-				moveUp.render(graphics, mouseX, mouseY, partialTicks);
+				moveUp.renderWidget(graphics, mouseX, mouseY, partialTicks);
 				moveDown.setX(left + width - 16);
 				moveDown.setY(top + 10);
 				moveDown.visible = canMoveDown();
-				moveDown.render(graphics, mouseX, mouseY, partialTicks);
+				moveDown.renderWidget(graphics, mouseX, mouseY, partialTicks);
 				if(moveDown.visible || moveUp.visible) {
 					left -= 8;
 				}

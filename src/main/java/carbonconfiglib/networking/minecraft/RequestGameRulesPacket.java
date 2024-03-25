@@ -7,6 +7,7 @@ import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -28,23 +29,24 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public class RequestGameRulesPacket implements ICarbonPacket
 {
+	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "request_mc");
 	UUID requestId;
-	
-	public RequestGameRulesPacket() {}
 	
 	public RequestGameRulesPacket(UUID requestId) {
 		this.requestId = requestId;
 	}
-
+	
+	public RequestGameRulesPacket(FriendlyByteBuf buffer) {
+		requestId = buffer.readUUID();
+	}
+	
 	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUUID(requestId);
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		requestId = buffer.readUUID();
-	}
+	public ResourceLocation id() { return ID; }
 	
 	@Override
 	public void process(Player player) {

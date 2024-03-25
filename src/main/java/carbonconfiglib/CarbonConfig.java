@@ -36,10 +36,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -78,16 +78,17 @@ public class CarbonConfig
 	public static EnumValue<BackgroundTypes> BACKGROUNDS;
 	public static BoolValue INGAME_BACKGROUND;
 	
-	public CarbonConfig()
+	public CarbonConfig(IEventBus bus)
 	{
-		NETWORK.init();
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonLoad);
+		LOGGER.info("Called");
+		bus.addListener(NETWORK::init);
+		bus.addListener(this::onCommonLoad);
 		NeoForge.EVENT_BUS.addListener(this::load);
 		NeoForge.EVENT_BUS.addListener(this::unload);
 		NeoForge.EVENT_BUS.register(EventHandler.INSTANCE);
 		if(FMLEnvironment.dist.isClient()) {
-			FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientLoad);
-			FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerKeys);
+			bus.addListener(this::onClientLoad);
+			bus.addListener(this::registerKeys);
 			NeoForge.EVENT_BUS.addListener(this::onKeyPressed);
 			Config config = new Config("carbonconfig");
 			ConfigSection section = config.add("general");
