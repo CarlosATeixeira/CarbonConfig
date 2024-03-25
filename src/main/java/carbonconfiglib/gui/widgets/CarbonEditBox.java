@@ -62,10 +62,10 @@ public class CarbonEditBox extends EditBox implements IOwnable
 	}
 	
 	@Override
-	public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
 		if(this.isFocused() && owner != null && !owner.isActiveWidget(this)) {
 			setFocused(false);
 		}
-		super.render(stack, mouseX, mouseY, partialTicks);
+		super.renderWidget(stack, mouseX, mouseY, partialTicks);
 	}
 }
