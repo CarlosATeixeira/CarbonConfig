@@ -5,6 +5,7 @@ import java.util.Deque;
 
 import org.lwjgl.opengl.GL11;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -185,6 +186,7 @@ public class GuiUtils
 		bufferbuilder.vertex(matrix, maxX, maxY, 0).uv(t_maxX, t_maxY).endVertex();
 		bufferbuilder.vertex(matrix, maxX, y, 0).uv(t_maxX, t_minY).endVertex();
 		bufferbuilder.vertex(matrix, x, y, 0).uv(t_minX, t_minY).endVertex();
+		GlStateManager._enableBlend();
 		tessellator.end();
 	}
 	

@@ -114,8 +114,8 @@ modrinth {
 	gameVersions = [MC_VERSION]
 	loaders = ['fabric']
 	
-    def changelog = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
-    changelog = changelog.exists() ? changelog.getText('UTF-8') : "";
+    def log = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
+    changelog = log.exists() ? log.getText('UTF-8') : "";
 }
 
 task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) { 
