@@ -122,7 +122,7 @@ modrinth {
 	versionType = RELEASE_TYPE
 	uploadFile = jar
 	gameVersions = [MC_VERSION]
-	loaders = ['neoforge']
+	loaders = ['NeoForge']
 	
     def logs = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
     changelog = logs.exists() ? logs.getText('UTF-8') : "";
