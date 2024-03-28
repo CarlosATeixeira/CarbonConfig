@@ -123,6 +123,9 @@ modrinth {
 	uploadFile = jar
 	gameVersions = [MC_VERSION]
 	loaders = ['fabric']
+	dependencies {
+		optional.project "modmenu"
+	}
 	
     def log = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
     changelog = log.exists() ? log.getText('UTF-8') : "";
@@ -143,4 +146,5 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     mainFile.changelogType = 'markdown'
     mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
     mainFile.addJavaVersion('Java 17')
+    mainFile.addOptional('modmenu')
 }
