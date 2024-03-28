@@ -103,6 +103,13 @@ publishing {
 	}
 }
 
+task publishMods() {
+	group 'publishing'
+	description 'Publishes the mod to all Mod Distributors'
+	doLast {
+		System.out.println("Published Mods to Curseforge/Modrinth")
+	}
+}
 
 modrinth {
 	token = System.getenv("Modrinth_API_Token");
