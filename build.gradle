@@ -111,6 +111,9 @@ task publishMods() {
 	}
 }
 
+publishMods.dependsOn('modrinth')
+publishMods.dependsOn('curseforge')
+
 modrinth {
 	token = System.getenv("Modrinth_API_Token");
 	projectId = 'carbon-config'
