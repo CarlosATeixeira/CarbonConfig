@@ -61,18 +61,20 @@ public class ColorElement extends ConfigElement
 	}
 	
 	@Override
-	public void render(GuiGraphics graphics, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
-	{
+	public void render(GuiGraphics graphics, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		super.render(graphics, x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
-		if(isArray()) {
-			graphics.fill(left+186, top-1, left+203, top+19, 0xFFA0A0A0);
-			graphics.fill(left+187, top, left+202, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
+		try {
+			if(isArray()) {
+				graphics.fill(left+186, top-1, left+203, top+19, 0xFFA0A0A0);
+				graphics.fill(left+187, top, left+202, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
+			}
+			else {
+				int xOff = isCompound() ? 194 : 207;
+				graphics.fill(left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
+				graphics.fill(left+xOff+1, top, left+xOff+16, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
+			}
 		}
-		else {
-			int xOff = isCompound() ? 194 : 207;
-			graphics.fill(left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
-			graphics.fill(left+xOff+1, top, left+xOff+16, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
-		}
+		catch(Exception e) {}
 		if(textBox.isMouseOver(mouseX, mouseY) && result != null && !result.getValue()) {
 			owner.addTooltips(Component.literal(result.getError().getMessage()).withStyle(ChatFormatting.RED));
 		}
