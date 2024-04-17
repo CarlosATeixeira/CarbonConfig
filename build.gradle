@@ -142,6 +142,7 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     mainFile.changelogType = 'markdown'
     mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
     mainFile.addJavaVersion('Java 8')
+    mainFile.addModLoader('Forge')
 }
 
 publishing {
