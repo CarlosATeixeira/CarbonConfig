@@ -108,7 +108,7 @@ public class RegistryValue<T extends IForgeRegistryEntry<T>> extends CollectionC
 	
 	@Override
 	public IStructuredData getDataType() {
-		return ListBuilder.variants(EntryDataType.STRING, clz, this::parseEntry, T -> registry.getKey(T).toString()).build(true);
+		return ListBuilder.variants(EntryDataType.STRING, clz, this::parseEntry, T -> registry.getKey(T).toString()).addSuggestions(ISuggestionProvider.wrapper(this::getSuggestions)).build(true);
 	}
 
 	@Override
