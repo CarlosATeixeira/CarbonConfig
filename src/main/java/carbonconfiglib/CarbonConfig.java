@@ -89,6 +89,7 @@ public class CarbonConfig
 	@net.minecraftforge.fml.common.Mod.EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
+		NETWORK.init();
 		MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
 		if(FMLCommonHandler.instance().getSide().isClient()) {
 			MinecraftForge.EVENT_BUS.register(this);
