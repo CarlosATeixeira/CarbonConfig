@@ -52,33 +52,33 @@ public class ColorValue extends BasicConfigEntry<ColorWrapper>
 	}
 	
 	public ColorValue addSimpleColorSuggestions() {
-		return addSuggestionProvider(this::addSimpleColors);
+		return addSuggestionProvider(ColorValue::addSimpleColors);
 	}
 	
 	public ColorValue addExpandedColorSuggestions() {
-		return addSuggestionProvider(this::addExpandedColors);
+		return addSuggestionProvider(ColorValue::addExpandedColors);
 	}
 	
 	public ColorValue addMCChatFormatSuggestions() {
-		addSuggestionProvider(this::addMCColorPalette);
+		addSuggestionProvider(ColorValue::addMCColorPalette);
 		return this;
 	}
 	
-	private void addSimpleColors(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
+	public static void addSimpleColors(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
 		for(int i = 0,m=SIMPLE_COLORS.length;i<m;i++) {
 			Suggestion value = Suggestion.namedTypeValue(Helpers.toPascalCase(SIMPLE_COLOR_NAMES[i]), SIMPLE_COLORS[i], ColorWrapper.class);
 			if(filter.test(value)) result.accept(value);
 		}
 	}
 	
-	private void addExpandedColors(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
+	public static void addExpandedColors(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
 		for(int i = 0,m=EXPANDED_COLORS.length;i<m;i++) {
 			Suggestion value = Suggestion.namedTypeValue(Helpers.toPascalCase(EXPANDED_COLOR_NAMES[i]), EXPANDED_COLORS[i], ColorWrapper.class);
 			if(filter.test(value)) result.accept(value);
 		}
 	}
 	
-	private void addMCColorPalette(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
+	public static void addMCColorPalette(Consumer<Suggestion> result, Predicate<Suggestion> filter) {
 		for(ChatFormatting formatting : ChatFormatting.values()) {
 			if(!formatting.isColor()) continue;
 			Suggestion value = Suggestion.namedTypeValue(Helpers.firstLetterUppercase(formatting.getName()), ColorWrapper.serializeRGB(formatting.getColor()), ColorWrapper.class);
