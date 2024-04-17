@@ -101,7 +101,7 @@ public class RegistryValue<T> extends CollectionConfigEntry<T, Set<T>>
 	
 	@Override
 	public IStructuredData getDataType() {
-		return ListBuilder.variants(EntryDataType.STRING, clz, this::parseEntry, registry::getNameForObject).build(true);
+		return ListBuilder.variants(EntryDataType.STRING, clz, this::parseEntry, registry::getNameForObject).addSuggestions(ISuggestionProvider.wrapper(this::getSuggestions)).build(true);
 	}
 
 	@Override

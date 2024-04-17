@@ -101,7 +101,7 @@ public class RegistryKeyValue extends CollectionConfigEntry<String, Set<String>>
 	
 	@Override
 	public IStructuredData getDataType() {
-		return ListBuilder.variants(EntryDataType.STRING, String.class, this::parseEntry, Function.identity()).build(true);
+		return ListBuilder.variants(EntryDataType.STRING, String.class, this::parseEntry, Function.identity()).addSuggestions(ISuggestionProvider.wrapper(this::getSuggestions)).build(true);
 	}
 	
 	@Override
