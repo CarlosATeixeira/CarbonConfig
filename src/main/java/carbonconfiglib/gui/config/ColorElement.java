@@ -61,8 +61,7 @@ public class ColorElement extends ConfigElement
 	}
 	
 	@Override
-	public void render(GuiGraphics graphics, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
-	{
+	public void render(GuiGraphics graphics, int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks) {
 		super.render(graphics, x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
 		if(isArray()) {
 			graphics.fill(left+186, top-1, left+203, top+19, 0xFFA0A0A0);

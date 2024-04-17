@@ -103,7 +103,7 @@ public class RegistryKeyValue extends CollectionConfigEntry<ResourceLocation, Se
 	
 	@Override
 	public IStructuredData getDataType() {
-		return ListBuilder.variants(EntryDataType.STRING, ResourceLocation.class, this::parseEntry, ResourceLocation::toString).build(true);
+		return ListBuilder.variants(EntryDataType.STRING, ResourceLocation.class, this::parseEntry, ResourceLocation::toString).addSuggestions(ISuggestionProvider.wrapper(this::getSuggestions)).build(true);
 	}
 	
 	@Override
