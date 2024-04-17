@@ -107,6 +107,7 @@ public class EventHandler implements IConfigChangeListener
 		INSTANCE.onPlayerClientJoinEvent();
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void onPlayerClientLeave(IntegratedServer server) {
 		INSTANCE.onPlayerClientLeaveEvent(server);
 	}

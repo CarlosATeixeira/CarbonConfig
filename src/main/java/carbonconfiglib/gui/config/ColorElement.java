@@ -71,15 +71,18 @@ public class ColorElement extends ConfigElement
 	public void render(int x, int top, int left, int width, int height, int mouseX, int mouseY, boolean selected, float partialTicks)
 	{
 		super.render(x, top, left, width, height, mouseX, mouseY, selected, partialTicks);
-		if(isArray()) {
-			Gui.drawRect(left+186, top-1, left+203, top+19, 0xFFA0A0A0);
-			Gui.drawRect(left+187, top, left+202, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
+		try {
+			if(isArray()) {
+				Gui.drawRect(left+186, top-1, left+203, top+19, 0xFFA0A0A0);
+				Gui.drawRect(left+187, top, left+202, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
+			}
+			else {
+				int xOff = isCompound() ? 194 : 207;
+				Gui.drawRect(left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
+				Gui.drawRect(left+xOff+1, top, left+xOff+16, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
+			}
 		}
-		else {
-			int xOff = isCompound() ? 194 : 207;
-			Gui.drawRect(left+xOff, top-1, left+xOff+17, top+19, 0xFFA0A0A0);
-			Gui.drawRect(left+xOff+1, top, left+xOff+16, top+18, Long.decode(value.get()).intValue() | 0xFF000000);
-		}
+		catch(Exception e) {}
 		if(textBox.isMouseOver(mouseX, mouseY) && result != null && !result.getValue()) {
 			owner.addTooltips(new ChatComponentText(result.getError().getMessage()).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
 		}
