@@ -39,9 +39,9 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.mclanguageprovider.MinecraftModContainer;
-import net.neoforged.neoforge.client.ConfigScreenHandler.ConfigScreenFactory;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingIn;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.TickEvent.ClientTickEvent;
 import net.neoforged.neoforge.event.TickEvent.Phase;
 import net.neoforged.neoforge.event.TickEvent.ServerTickEvent;
@@ -132,12 +132,12 @@ public class EventHandler implements IConfigChangeListener
 		loadDefaultTypes();
 		Object2ObjectMap<ModContainer, List<IModConfigs>> mappedConfigs = new Object2ObjectLinkedOpenHashMap<>();
 		configs.forEach((M, C) -> {
-			if(M.getCustomExtension(ConfigScreenFactory.class).isPresent()) return;
+			if(M.getCustomExtension(IConfigScreenFactory.class).isPresent()) return;
 			mappedConfigs.supplyIfAbsent(M, ObjectArrayList::new).add(C);
 		});
 		if(CarbonConfig.FORGE_SUPPORT.get()) {
 			ModList.get().forEachModInOrder(T-> {
-				if(T.getCustomExtension(ConfigScreenFactory.class).isEmpty()) {
+				if(T.getCustomExtension(IConfigScreenFactory.class).isEmpty()) {
 					ForgeConfigs configs = new ForgeConfigs(T);
 					if(configs.hasConfigs()) {
 						mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(configs);						
@@ -148,7 +148,12 @@ public class EventHandler implements IConfigChangeListener
 				};
 			});
 		}
-		mappedConfigs.forEach((M, C) -> M.registerExtensionPoint(ConfigScreenFactory.class, () -> new ConfigScreenFactory((U, S) -> create(S, ModConfigList.createMultiIfApplicable(M, C)))));
+		mappedConfigs.forEach(this::register);
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	private void register(ModContainer container, List<IModConfigs> configs) {
+		container.registerExtensionPoint(IConfigScreenFactory.class, new Wrapper(container, configs));
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -166,11 +171,6 @@ public class EventHandler implements IConfigChangeListener
 		DataType.registerType(Enchantment.class, RegistryElement.createForType(Enchantment.class, "minecraft:fortune"));
 		DataType.registerType(MobEffect.class, RegistryElement.createForType(MobEffect.class, "minecraft:luck"));
 		DataType.registerType(ColorWrapper.class, new DataType(false, "0xFFFFFFFF", ColorElement::new, ColorElement::new, ColorElement::new));
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	private Screen create(Screen screen, IModConfigs configs) {	
-		return new ConfigSelectorScreen(configs, screen);
 	}
 	
 	public void onServerJoinPacket(Player player) {
@@ -219,5 +219,25 @@ public class EventHandler implements IConfigChangeListener
 	
 	private void processEvents() {
 		CarbonConfig.CONFIGS.processFileSystemEvents();
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	private class Wrapper implements IConfigScreenFactory {
+		ModContainer container;
+		List<IModConfigs> configs;
+		
+		public Wrapper(ModContainer container, List<IModConfigs> configs) {
+			this.container = container;
+			this.configs = configs;
+		}
+
+
+
+
+		@Override
+		public Screen createScreen(Minecraft minecraft, Screen screen) {
+			return new ConfigSelectorScreen(ModConfigList.createMultiIfApplicable(container, configs), screen);
+		}
+		
 	}
 }

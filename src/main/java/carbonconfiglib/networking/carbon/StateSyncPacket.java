@@ -3,9 +3,12 @@ package carbonconfiglib.networking.carbon;
 
 import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.impl.internal.EventHandler;
+import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
+import carbonconfiglib.networking.minecraft.SaveGameRulesPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 
@@ -26,7 +29,8 @@ import net.neoforged.api.distmarker.Dist;
  */
 public class StateSyncPacket implements ICarbonPacket
 {
-	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "state");
+    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, CarbonNetwork.readPacket(SaveGameRulesPacket::new));
+	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:state");
 	Dist source;
 	
 	public StateSyncPacket(Dist source) {
@@ -37,13 +41,12 @@ public class StateSyncPacket implements ICarbonPacket
 		source = buffer.readBoolean() ? Dist.CLIENT : Dist.DEDICATED_SERVER;
 	}
 	
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeBoolean(source.isClient());
 	}
 	
 	@Override
-	public ResourceLocation id() { return ID; }
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

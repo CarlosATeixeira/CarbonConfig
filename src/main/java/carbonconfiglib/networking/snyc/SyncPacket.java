@@ -9,6 +9,7 @@ import carbonconfiglib.api.buffer.IWriteBuffer;
 import carbonconfiglib.config.ConfigEntry;
 import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.impl.ReloadMode;
+import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.buffer.ReadBuffer;
 import carbonconfiglib.networking.buffer.WriteBuffer;
@@ -17,7 +18,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -37,7 +39,8 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SyncPacket implements ICarbonPacket
 {
-	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "sync");
+    public static final StreamCodec<FriendlyByteBuf, SyncPacket> STREAM_CODEC = CustomPacketPayload.codec(SyncPacket::write, CarbonNetwork.readPacket(SyncPacket::new));
+	public static final Type<SyncPacket> ID = CustomPacketPayload.createType("carbonconfig:sync");
 	
 	String identifier;
 	SyncType type;
@@ -77,7 +80,6 @@ public class SyncPacket implements ICarbonPacket
 		return data.isEmpty() ? null : new SyncPacket(handler.getConfigIdentifer(), type, data);
 	}
 	
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUtf(identifier);
 		buffer.writeEnum(type);
@@ -89,7 +91,7 @@ public class SyncPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public ResourceLocation id() { return ID; }
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

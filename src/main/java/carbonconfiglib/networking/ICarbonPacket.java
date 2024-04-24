@@ -1,6 +1,5 @@
 package carbonconfiglib.networking;
 
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
@@ -21,7 +20,5 @@ import net.minecraft.world.entity.player.Player;
  */
 public interface ICarbonPacket extends CustomPacketPayload
 {
-	public void write(FriendlyByteBuf buffer);
-	
 	public void process(Player player);
 }

@@ -27,5 +27,5 @@ public interface IModConfigs
 	public List<IModConfig> getConfigInstances(ConfigType type);
 	public BackgroundHolder getBackground();
 	
-	public static record Background(BackgroundTexture texture) implements IExtensionPoint<Background> {}
+	public static record Background(BackgroundTexture texture) implements IExtensionPoint {}
 }

@@ -4,15 +4,16 @@ import java.nio.file.Files;
 import java.util.UUID;
 
 import carbonconfiglib.CarbonConfig;
+import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.config.ConfigTracker;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.config.ModConfig.Type;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -31,12 +32,13 @@ import net.neoforged.fml.config.ModConfig.Type;
  */
 public class RequestConfigPacket implements ICarbonPacket
 {
-	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "request_neo");
+    public static final StreamCodec<FriendlyByteBuf, RequestConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(RequestConfigPacket::write, CarbonNetwork.readPacket(RequestConfigPacket::new));
+	public static final CustomPacketPayload.Type<RequestConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:request_neo");
 	ModConfig.Type type;
 	UUID requestId;
 	String modId;
 	
-	public RequestConfigPacket(Type type, UUID requestId, String modId) {
+	public RequestConfigPacket(ModConfig.Type type, UUID requestId, String modId) {
 		this.type = type;
 		this.requestId = requestId;
 		this.modId = modId;
@@ -48,7 +50,6 @@ public class RequestConfigPacket implements ICarbonPacket
 		modId = buffer.readUtf(32767);
 	}
 	
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeEnum(type);
 		buffer.writeUUID(requestId);
@@ -56,7 +57,7 @@ public class RequestConfigPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public ResourceLocation id() { return ID; } 
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

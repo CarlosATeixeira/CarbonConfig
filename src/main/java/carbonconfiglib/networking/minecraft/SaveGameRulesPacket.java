@@ -3,10 +3,12 @@ package carbonconfiglib.networking.minecraft;
 import com.mojang.serialization.Dynamic;
 
 import carbonconfiglib.CarbonConfig;
+import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
@@ -29,7 +31,8 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public class SaveGameRulesPacket implements ICarbonPacket
 {
-	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "save_mc");
+    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, CarbonNetwork.readPacket(SaveGameRulesPacket::new));
+	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:save_mc");
 	GameRules rules;
 	
 	public SaveGameRulesPacket(GameRules rules) {
@@ -40,13 +43,12 @@ public class SaveGameRulesPacket implements ICarbonPacket
 		rules = new GameRules(new Dynamic<>(NbtOps.INSTANCE, buffer.readNbt()));
 	}
 	
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeNbt(rules.createTag());
 	}
 	
 	@Override
-	public ResourceLocation id() { return ID; }
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

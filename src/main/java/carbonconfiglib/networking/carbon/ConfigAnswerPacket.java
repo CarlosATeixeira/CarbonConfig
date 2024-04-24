@@ -3,12 +3,14 @@ package carbonconfiglib.networking.carbon;
 import java.util.UUID;
 
 import carbonconfiglib.gui.api.IRequestScreen;
+import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -30,7 +32,8 @@ import net.neoforged.api.distmarker.OnlyIn;
  */
 public class ConfigAnswerPacket implements ICarbonPacket
 {
-	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "answer");
+    public static final StreamCodec<FriendlyByteBuf, ConfigAnswerPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigAnswerPacket::write, CarbonNetwork.readPacket(ConfigAnswerPacket::new));
+	public static final Type<ConfigAnswerPacket> ID = CustomPacketPayload.createType("carbonconfig:answer");
 	UUID id;
 	byte[] data;
 	
@@ -44,16 +47,14 @@ public class ConfigAnswerPacket implements ICarbonPacket
 		data = buffer.readByteArray();
 	}
 	
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUUID(id);
 		buffer.writeByteArray(data);
 	}
 	
 	@Override
-	public ResourceLocation id() { return ID; }
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
-	@Override
 	public void process(Player player) {
 		processClient();
 	}

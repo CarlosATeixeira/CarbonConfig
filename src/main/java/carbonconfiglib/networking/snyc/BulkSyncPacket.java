@@ -5,11 +5,13 @@ import java.util.List;
 
 import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.impl.ReloadMode;
+import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.SyncType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -29,7 +31,8 @@ import net.minecraft.world.entity.player.Player;
  */
 public class BulkSyncPacket implements ICarbonPacket
 {
-	public static final ResourceLocation ID = new ResourceLocation("carbonconfig", "bulksync");
+    public static final StreamCodec<FriendlyByteBuf, BulkSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(BulkSyncPacket::write, CarbonNetwork.readPacket(BulkSyncPacket::new));
+	public static final Type<BulkSyncPacket> ID = CustomPacketPayload.createType("carbonconfig:bulksync");
 	List<SyncPacket> packets = new ObjectArrayList<>();
 	
 	public BulkSyncPacket(List<SyncPacket> packets) {
@@ -52,7 +55,6 @@ public class BulkSyncPacket implements ICarbonPacket
 		return result.isEmpty() ? null : new BulkSyncPacket(result);
 	}
 
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeVarInt(packets.size());
 		for(SyncPacket packet : packets) {
@@ -61,7 +63,7 @@ public class BulkSyncPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public ResourceLocation id() { return ID; }
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

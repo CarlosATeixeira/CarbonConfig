@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'eclipse'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.55'
+    id 'net.neoforged.gradle.userdev' version '7.0.107'
     id 'net.darkhax.curseforgegradle' version '1.1.15'
     id 'com.modrinth.minotaur' version '2.+'
 }
@@ -14,7 +14,7 @@ jarJar.enable()
 
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 sourceSets {
     main {
@@ -57,7 +57,7 @@ repositories {
 
 
 dependencies {
-    implementation "net.neoforged:neoforge:20.4.211"
+    implementation "net.neoforged:neoforge:20.5.1-beta"
 	implementation ':Primitive Collections-0.8.9'
 	jarJar(group: 'com.github.Speiger', name: 'Primitive Collections', version: '[0.8,0.9)') {
 	 	jarJar.pin(it, "0.8.9")
@@ -88,7 +88,6 @@ task renameBuild (type: Copy) {
     from ('build/libs')
     into ('build/libs')
     rename { name ->  
-    	System.out.println('replacing: '+name)
     	name.replace '-all', ''
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -142,5 +141,5 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     mainFile.changelog = changelog.exists() ? changelog.getText('UTF-8') : "";
     mainFile.changelogType = 'markdown'
     mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
-    mainFile.addJavaVersion('Java 17')
+    mainFile.addJavaVersion('Java 21')
 }
