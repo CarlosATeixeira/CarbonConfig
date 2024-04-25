@@ -76,7 +76,9 @@ public class ForgeNode implements IConfigFolderNode
 					children.add(new ForgeNode(list, config, spec, (UnmodifiableConfig)value));
 				}
 				else if(value instanceof ConfigValue) {
-					children.add(new ForgeLeaf(spec, (ConfigValue<?>)value, config));
+					ForgeLeaf leaf = new ForgeLeaf(spec, (ConfigValue<?>)value, config);
+					if(!leaf.isValid()) continue;
+					children.add(leaf);
 				}
 			}
 		}
