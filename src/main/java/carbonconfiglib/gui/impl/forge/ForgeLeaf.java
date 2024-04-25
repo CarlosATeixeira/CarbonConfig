@@ -73,6 +73,10 @@ public class ForgeLeaf implements IConfigNode
 		}
 	}
 	
+	public boolean isValid() {
+		return type != null;
+	}
+	
 	@Override
 	public List<IConfigNode> getChildren() { return null; }
 	
