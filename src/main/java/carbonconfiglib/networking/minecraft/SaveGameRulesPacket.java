@@ -3,7 +3,6 @@ package carbonconfiglib.networking.minecraft;
 import com.mojang.serialization.Dynamic;
 
 import carbonconfiglib.CarbonConfig;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -31,7 +30,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public class SaveGameRulesPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, CarbonNetwork.readPacket(SaveGameRulesPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, ICarbonPacket.readPacket(SaveGameRulesPacket::new));
 	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:save_mc");
 	GameRules rules;
 	

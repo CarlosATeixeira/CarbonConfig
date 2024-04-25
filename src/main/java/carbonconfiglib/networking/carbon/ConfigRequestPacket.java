@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.config.ConfigHandler;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.MultilinePolicy;
 import io.netty.buffer.Unpooled;
@@ -30,7 +29,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class ConfigRequestPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, ConfigRequestPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigRequestPacket::write, CarbonNetwork.readPacket(ConfigRequestPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, ConfigRequestPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigRequestPacket::write, ICarbonPacket.readPacket(ConfigRequestPacket::new));
 	public static final Type<ConfigRequestPacket> ID = CustomPacketPayload.createType("carbonconfig:request_carbon");
 	UUID id;
 	String identifier;

@@ -2,7 +2,6 @@ package carbonconfiglib.networking.carbon;
 
 import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.config.ConfigHandler;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SaveConfigPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, SaveConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveConfigPacket::write, CarbonNetwork.readPacket(SaveConfigPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, SaveConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveConfigPacket::write, ICarbonPacket.readPacket(SaveConfigPacket::new));
 	public static final Type<SaveConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:save_carbon");
 	String identifier;
 	String data;

@@ -3,7 +3,6 @@ package carbonconfiglib.networking;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
 import carbonconfiglib.networking.carbon.ConfigRequestPacket;
@@ -16,8 +15,6 @@ import carbonconfiglib.networking.minecraft.SaveGameRulesPacket;
 import carbonconfiglib.networking.snyc.BulkSyncPacket;
 import carbonconfiglib.networking.snyc.SyncPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -63,14 +60,6 @@ public class CarbonNetwork
 		type.playBidirectional(RequestGameRulesPacket.ID, RequestGameRulesPacket.STREAM_CODEC, this::handlePacket);
 		type.playBidirectional(SaveGameRulesPacket.ID, SaveGameRulesPacket.STREAM_CODEC, this::handlePacket);
 		type.playBidirectional(StateSyncPacket.ID, StateSyncPacket.STREAM_CODEC, this::handlePacket);
-	}
-		
-	public static <T extends ICarbonPacket> StreamDecoder<FriendlyByteBuf, T> readPacket(Function<FriendlyByteBuf, T> provider) {
-		return B -> {
-			try { return provider.apply(B); }
-			catch(Exception e) { e.printStackTrace(); }
-			return null;
-		};
 	}
 	
 	protected void handlePacket(ICarbonPacket packet, IPayloadContext provider) {

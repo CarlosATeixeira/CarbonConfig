@@ -9,7 +9,6 @@ import carbonconfiglib.api.buffer.IWriteBuffer;
 import carbonconfiglib.config.ConfigEntry;
 import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.impl.ReloadMode;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.buffer.ReadBuffer;
 import carbonconfiglib.networking.buffer.WriteBuffer;
@@ -39,7 +38,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SyncPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, SyncPacket> STREAM_CODEC = CustomPacketPayload.codec(SyncPacket::write, CarbonNetwork.readPacket(SyncPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, SyncPacket> STREAM_CODEC = CustomPacketPayload.codec(SyncPacket::write, ICarbonPacket.readPacket(SyncPacket::new));
 	public static final Type<SyncPacket> ID = CustomPacketPayload.createType("carbonconfig:sync");
 	
 	String identifier;

@@ -205,14 +205,6 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	}
 	
 	@Override
-	protected void renderListItems(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		if(customBackground != null && (minecraft.level == null || !customBackground.shouldDisableInLevel())) {
-			renderBackground(getX(), getRight(), getY(), getBottom(), (float)getScrollAmount(), customBackground.getTexture());			
-		}
-		super.renderListItems(graphics, mouseX, mouseY, partialTicks);
-	}
-	
-	@Override
 	protected void renderDecorations(GuiGraphics graphics, int mouseX, int mouseY) {
 		if(customBackground == null) return;
 		renderListOverlay(getX(), getRight(), getY(), getBottom(), width, endY, customBackground.getTexture());

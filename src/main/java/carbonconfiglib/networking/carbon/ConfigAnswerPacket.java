@@ -3,7 +3,6 @@ package carbonconfiglib.networking.carbon;
 import java.util.UUID;
 
 import carbonconfiglib.gui.api.IRequestScreen;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
@@ -32,7 +31,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  */
 public class ConfigAnswerPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, ConfigAnswerPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigAnswerPacket::write, CarbonNetwork.readPacket(ConfigAnswerPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, ConfigAnswerPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigAnswerPacket::write, ICarbonPacket.readPacket(ConfigAnswerPacket::new));
 	public static final Type<ConfigAnswerPacket> ID = CustomPacketPayload.createType("carbonconfig:answer");
 	UUID id;
 	byte[] data;

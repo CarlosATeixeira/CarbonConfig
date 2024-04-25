@@ -6,7 +6,6 @@ import com.electronwill.nightconfig.toml.TomlFormat;
 
 import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.gui.impl.forge.ForgeHelpers;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.Helpers;
 import net.minecraft.network.FriendlyByteBuf;
@@ -33,7 +32,7 @@ import net.neoforged.fml.config.ModConfig;
  */
 public class SaveForgeConfigPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, SaveForgeConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveForgeConfigPacket::write, CarbonNetwork.readPacket(SaveForgeConfigPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, SaveForgeConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveForgeConfigPacket::write, ICarbonPacket.readPacket(SaveForgeConfigPacket::new));
 	public static final CustomPacketPayload.Type<SaveForgeConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:save_neo");
 	ModConfig.Type type;
 	String modId;

@@ -3,7 +3,6 @@ package carbonconfiglib.networking.carbon;
 
 import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.impl.internal.EventHandler;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.minecraft.SaveGameRulesPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -29,7 +28,7 @@ import net.neoforged.api.distmarker.Dist;
  */
 public class StateSyncPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, CarbonNetwork.readPacket(SaveGameRulesPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, ICarbonPacket.readPacket(SaveGameRulesPacket::new));
 	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:state");
 	Dist source;
 	

@@ -5,7 +5,6 @@ import java.util.List;
 
 import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.impl.ReloadMode;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.SyncType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -31,7 +30,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class BulkSyncPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, BulkSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(BulkSyncPacket::write, CarbonNetwork.readPacket(BulkSyncPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, BulkSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(BulkSyncPacket::write, ICarbonPacket.readPacket(BulkSyncPacket::new));
 	public static final Type<BulkSyncPacket> ID = CustomPacketPayload.createType("carbonconfig:bulksync");
 	List<SyncPacket> packets = new ObjectArrayList<>();
 	

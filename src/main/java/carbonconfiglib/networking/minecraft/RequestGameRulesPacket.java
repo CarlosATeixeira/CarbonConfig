@@ -3,7 +3,6 @@ package carbonconfiglib.networking.minecraft;
 import java.util.UUID;
 
 import carbonconfiglib.CarbonConfig;
-import carbonconfiglib.networking.CarbonNetwork;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
 import io.netty.buffer.Unpooled;
@@ -31,7 +30,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public class RequestGameRulesPacket implements ICarbonPacket
 {
-    public static final StreamCodec<FriendlyByteBuf, RequestGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(RequestGameRulesPacket::write, CarbonNetwork.readPacket(RequestGameRulesPacket::new));
+    public static final StreamCodec<FriendlyByteBuf, RequestGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(RequestGameRulesPacket::write, ICarbonPacket.readPacket(RequestGameRulesPacket::new));
 	public static final CustomPacketPayload.Type<RequestGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:request_mc");
 	UUID requestId;
 	
