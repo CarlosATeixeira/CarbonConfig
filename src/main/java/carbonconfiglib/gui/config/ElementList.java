@@ -190,15 +190,18 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	
 	public void setCustomBackground(BackgroundHolder customBackground) {
 		this.customBackground = customBackground;
-		setRenderBackground(this.customBackground == null);
 	}
 	
 	@Override
-	protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		if(customBackground != null && (minecraft.level == null || !customBackground.shouldDisableInLevel())) {
-			renderBackground(getX(), getRight(), getY(), getBottom(), (float)getScrollAmount(), customBackground.getTexture());			
+	protected void renderListBackground(GuiGraphics graphics) {
+		if(customBackground != null) {
+			if((minecraft.level == null || !customBackground.shouldDisableInLevel())) {
+				renderBackground(getX(), getRight(), getY(), getBottom(), (float)getScrollAmount(), customBackground.getTexture());			
+			}
+			
+			return;
 		}
-		super.renderList(graphics, mouseX, mouseY, partialTicks);
+		super.renderListBackground(graphics);
 	}
 	
 	@Override

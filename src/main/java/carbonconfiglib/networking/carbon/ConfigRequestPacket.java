@@ -8,6 +8,8 @@ import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.MultilinePolicy;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -27,27 +29,28 @@ import net.minecraft.world.entity.player.Player;
  */
 public class ConfigRequestPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, ConfigRequestPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigRequestPacket::write, ICarbonPacket.readPacket(ConfigRequestPacket::new));
+	public static final Type<ConfigRequestPacket> ID = CustomPacketPayload.createType("carbonconfig:request_carbon");
 	UUID id;
 	String identifier;
-	
-	public ConfigRequestPacket() {}
 	
 	public ConfigRequestPacket(UUID id, String identifier) {
 		this.id = id;
 		this.identifier = identifier;
 	}
-
-	@Override
+	
+	public ConfigRequestPacket(FriendlyByteBuf buffer) {
+		id = buffer.readUUID();
+		identifier = buffer.readUtf(32767);
+	}
+	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUUID(id);
 		buffer.writeUtf(identifier, 32767);
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		id = buffer.readUUID();
-		identifier = buffer.readUtf(32767);
-	}
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

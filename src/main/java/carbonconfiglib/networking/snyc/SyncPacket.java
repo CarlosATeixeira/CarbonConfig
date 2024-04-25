@@ -17,6 +17,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -36,17 +38,25 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SyncPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, SyncPacket> STREAM_CODEC = CustomPacketPayload.codec(SyncPacket::write, ICarbonPacket.readPacket(SyncPacket::new));
+	public static final Type<SyncPacket> ID = CustomPacketPayload.createType("carbonconfig:sync");
 	String identifier;
 	SyncType type;
 	Map<String, byte[]> entries = new Object2ObjectLinkedOpenHashMap<>();
-	
-	public SyncPacket() {
-	}
 	
 	public SyncPacket(String identifier, SyncType type, Map<String, byte[]> entries) {
 		this.identifier = identifier;
 		this.type = type;
 		this.entries = entries;
+	}
+	
+	public SyncPacket(FriendlyByteBuf buffer) {
+		identifier = buffer.readUtf(32767);
+		type = buffer.readEnum(SyncType.class);
+		int size = buffer.readVarInt();
+		for(int i = 0;i<size;i++) {
+			entries.put(buffer.readUtf(32767), buffer.readByteArray());
+		}
 	}
 	
 	public static SyncPacket create(ConfigHandler handler, SyncType type, boolean forceSync) {
@@ -68,7 +78,6 @@ public class SyncPacket implements ICarbonPacket
 		return data.isEmpty() ? null : new SyncPacket(handler.getConfigIdentifer(), type, data);
 	}
 	
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUtf(identifier);
 		buffer.writeEnum(type);
@@ -80,15 +89,8 @@ public class SyncPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		identifier = buffer.readUtf(32767);
-		type = buffer.readEnum(SyncType.class);
-		int size = buffer.readVarInt();
-		for(int i = 0;i<size;i++) {
-			entries.put(buffer.readUtf(32767), buffer.readByteArray());
-		}
-	}
-	
+	public Type<? extends CustomPacketPayload> type() { return ID; }
+
 	@Override
 	public void process(Player player) {
 		ReloadMode mode = processEntry(player);

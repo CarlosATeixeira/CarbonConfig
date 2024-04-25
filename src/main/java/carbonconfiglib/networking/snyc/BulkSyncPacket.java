@@ -9,6 +9,8 @@ import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.utils.SyncType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -28,13 +30,19 @@ import net.minecraft.world.entity.player.Player;
  */
 public class BulkSyncPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, BulkSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(BulkSyncPacket::write, ICarbonPacket.readPacket(BulkSyncPacket::new));
+	public static final Type<BulkSyncPacket> ID = CustomPacketPayload.createType("carbonconfig:bulksync");
 	List<SyncPacket> packets = new ObjectArrayList<>();
-	
-	public BulkSyncPacket() {
-	}
 	
 	public BulkSyncPacket(List<SyncPacket> packets) {
 		this.packets = packets;
+	}
+	
+	public BulkSyncPacket(FriendlyByteBuf buffer) {
+		int size = buffer.readVarInt();
+		for(int i = 0;i<size;i++) {
+			packets.add(new SyncPacket(buffer));
+		}
 	}
 	
 	public static BulkSyncPacket create(Collection<ConfigHandler> toSync, SyncType type, boolean forceSync) {
@@ -46,7 +54,6 @@ public class BulkSyncPacket implements ICarbonPacket
 		return result.isEmpty() ? null : new BulkSyncPacket(result);
 	}
 
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeVarInt(packets.size());
 		for(SyncPacket packet : packets) {
@@ -55,15 +62,8 @@ public class BulkSyncPacket implements ICarbonPacket
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		int size = buffer.readVarInt();
-		for(int i = 0;i<size;i++) {
-			SyncPacket packet = new SyncPacket();
-			packet.read(buffer);
-			packets.add(packet);
-		}
-	}
-	
+	public Type<? extends CustomPacketPayload> type() { return ID; }
+		
 	@Override
 	public void process(Player player) {
 		ReloadMode result = null;

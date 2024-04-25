@@ -10,6 +10,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -29,27 +31,28 @@ import net.minecraft.world.entity.player.Player;
  */
 public class ConfigAnswerPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, ConfigAnswerPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigAnswerPacket::write, ICarbonPacket.readPacket(ConfigAnswerPacket::new));
+	public static final Type<ConfigAnswerPacket> ID = CustomPacketPayload.createType("carbonconfig:answer");
 	UUID id;
 	byte[] data;
-	
-	public ConfigAnswerPacket() {}
-	
+		
 	public ConfigAnswerPacket(UUID id, byte[] data) {
 		this.id = id;
 		this.data = data;
 	}
-
-	@Override
+	
+	public ConfigAnswerPacket(FriendlyByteBuf buffer) {
+		id = buffer.readUUID();
+		data = buffer.readByteArray();
+	}
+	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUUID(id);
 		buffer.writeByteArray(data);
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		id = buffer.readUUID();
-		data = buffer.readByteArray();
-	}
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

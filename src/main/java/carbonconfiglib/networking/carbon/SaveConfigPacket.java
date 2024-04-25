@@ -5,6 +5,8 @@ import carbonconfiglib.config.ConfigHandler;
 import carbonconfiglib.networking.ICarbonPacket;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -24,28 +26,28 @@ import net.minecraft.world.entity.player.Player;
  */
 public class SaveConfigPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, SaveConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveConfigPacket::write, ICarbonPacket.readPacket(SaveConfigPacket::new));
+	public static final Type<SaveConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:save_carbon");
 	String identifier;
 	String data;
-	
-	public SaveConfigPacket() {
-	}
 	
 	public SaveConfigPacket(String identifier, String data) {
 		this.identifier = identifier;
 		this.data = data;
 	}
-
-	@Override
+	
+	public SaveConfigPacket(FriendlyByteBuf buffer) {
+		identifier = buffer.readUtf(32767);
+		data = buffer.readUtf(262144);
+	}
+	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUtf(identifier, 32767);
 		buffer.writeUtf(data, 262144);
 	}
-	
+		
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		identifier = buffer.readUtf(32767);
-		data = buffer.readUtf(262144);
-	}
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

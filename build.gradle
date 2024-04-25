@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.5-SNAPSHOT'
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
 	id 'net.darkhax.curseforgegradle' version '1.1.15'
     id 'com.modrinth.minotaur' version '2.+'
@@ -40,7 +40,7 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation "com.terraformersmc:modmenu:9.0.0"
+	modImplementation "com.terraformersmc:modmenu:10.0.0-beta.1"
 
 
 	// Uncomment the following line to enable the deprecated Fabric API modules. 
@@ -64,7 +64,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
@@ -72,8 +72,8 @@ java {
 	// if it is present.
 	// If you remove this line, sources will not be generated.
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
@@ -121,7 +121,7 @@ modrinth {
 	versionNumber = MOD_VERSION
 	versionType = RELEASE_TYPE
 	uploadFile = jar
-	gameVersions = [MC_VERSION, '1.20.1']
+	gameVersions = [MC_VERSION]
 	loaders = ['fabric']
 	dependencies {
 		optional.project "modmenu"
@@ -144,7 +144,7 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     def changelog = new File(projectDir, "/changelogs/"+MOD_VERSION.replace(".", "")+".md");
     mainFile.changelog = changelog.exists() ? changelog.getText('UTF-8') : "";
     mainFile.changelogType = 'markdown'
-    mainFile.addGameVersion(MC_VERSION, '1.20.1', 'Server', 'Client')
-    mainFile.addJavaVersion('Java 17')
+    mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
+    mainFile.addJavaVersion('Java 21')
     mainFile.addOptional('modmenu')
 }

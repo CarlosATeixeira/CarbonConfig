@@ -1,16 +1,18 @@
 package carbonconfiglib.gui.widgets;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import carbonconfiglib.gui.api.ISuggestionRenderer;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.IntTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +23,7 @@ import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.material.Fluid;
@@ -103,8 +105,7 @@ public class SuggestionRenderers
 			MobEffect potion = BuiltInRegistries.MOB_EFFECT.get(id);
 			if(potion == null) return null;
 			ItemStack item = new ItemStack(Items.POTION);
-			PotionUtils.setCustomEffects(item, ObjectLists.singleton(new MobEffectInstance(potion)));
-			item.addTagElement("CustomPotionColor", IntTag.valueOf(potion.getColor()));
+			item.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.of(potion.getColor()), List.of(new MobEffectInstance(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(potion)))));
 			graphics.renderItem(item, x, y);
 			return potion.getDisplayName().copy().withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));
 		}

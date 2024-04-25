@@ -8,6 +8,8 @@ import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 
@@ -28,6 +30,8 @@ import net.minecraft.world.entity.player.Player;
  */
 public class RequestGameRulesPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, RequestGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(RequestGameRulesPacket::write, ICarbonPacket.readPacket(RequestGameRulesPacket::new));
+	public static final CustomPacketPayload.Type<RequestGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:request_mc");
 	UUID requestId;
 	
 	public RequestGameRulesPacket() {}
@@ -35,16 +39,17 @@ public class RequestGameRulesPacket implements ICarbonPacket
 	public RequestGameRulesPacket(UUID requestId) {
 		this.requestId = requestId;
 	}
-
-	@Override
+	
+	public RequestGameRulesPacket(FriendlyByteBuf buffer) {
+		requestId = buffer.readUUID();
+	}
+	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUUID(requestId);
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		requestId = buffer.readUUID();
-	}
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {

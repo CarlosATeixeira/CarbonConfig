@@ -1,6 +1,10 @@
 package carbonconfiglib.networking;
 
+import java.util.function.Function;
+
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamDecoder;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -18,10 +22,15 @@ import net.minecraft.world.entity.player.Player;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public interface ICarbonPacket
+public interface ICarbonPacket extends CustomPacketPayload
 {
-	public void write(FriendlyByteBuf buffer);
-	public void read(FriendlyByteBuf buffer);
-	
 	public void process(Player player);
+	
+	public static <T extends ICarbonPacket> StreamDecoder<FriendlyByteBuf, T> readPacket(Function<FriendlyByteBuf, T> provider) {
+		return B -> {
+			try { return provider.apply(B); }
+			catch(Exception e) { e.printStackTrace(); }
+			return null;
+		};
+	}
 }

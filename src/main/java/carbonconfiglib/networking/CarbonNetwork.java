@@ -2,7 +2,6 @@ package carbonconfiglib.networking;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import carbonconfiglib.impl.internal.EventHandler;
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
@@ -16,15 +15,16 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.PlayChannelHandler;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.Context;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.PlayPayloadHandler;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -51,34 +51,35 @@ public class CarbonNetwork
 	Map<Class<?>, ResourceLocation> mappedPackets = new Object2ObjectOpenHashMap<>();
 	
 	public void init() {
-		registerPacket("sync", SyncPacket.class, SyncPacket::new);
-		registerPacket("bulk_sync", BulkSyncPacket.class, BulkSyncPacket::new);
-		registerPacket("config_request", ConfigRequestPacket.class, ConfigRequestPacket::new);
-		registerPacket("config_answer", ConfigAnswerPacket.class, ConfigAnswerPacket::new);
-		registerPacket("config_save", SaveConfigPacket.class, SaveConfigPacket::new);
-		registerPacket("rules_request", RequestGameRulesPacket.class, RequestGameRulesPacket::new);
-		registerPacket("rules_save", SaveGameRulesPacket.class, SaveGameRulesPacket::new);
+		registerPacket(SyncPacket.ID, SyncPacket.STREAM_CODEC);
+		registerPacket(BulkSyncPacket.ID, BulkSyncPacket.STREAM_CODEC);
+		registerPacket(ConfigRequestPacket.ID, ConfigRequestPacket.STREAM_CODEC);
+		registerPacket(ConfigAnswerPacket.ID, ConfigAnswerPacket.STREAM_CODEC);
+		registerPacket(SaveConfigPacket.ID, SaveConfigPacket.STREAM_CODEC);
+		registerPacket(RequestGameRulesPacket.ID, RequestGameRulesPacket.STREAM_CODEC);
+		registerPacket(SaveGameRulesPacket.ID, SaveGameRulesPacket.STREAM_CODEC);
 	}
 	
-	private <T extends ICarbonPacket> void registerPacket(String id, Class<T> packet, Supplier<T> creator) {
+	private <T extends ICarbonPacket> void registerPacket(CustomPacketPayload.Type<T> type, StreamCodec<FriendlyByteBuf, T> codec) {
+		PayloadTypeRegistry.playS2C().register(type, codec);
+		PayloadTypeRegistry.playC2S().register(type, codec);
 		if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			registerClientPacket(id, creator);
+			registerClientPacket(type);
 		}
-		registerServerPacket(id, creator);
+		registerServerPacket(type);
 	}
 	
-	private <T extends ICarbonPacket> void registerServerPacket(String id, Supplier<T> creator) {
-		ServerPlayNetworking.registerGlobalReceiver(new ResourceLocation("carbonconfig", id), (server, player, handler, buf, responseSender) -> {
-			T packet = creator.get();
-			packet.read(buf);
-			server.execute(() -> packet.process(player));
+	private <T extends ICarbonPacket> void registerServerPacket(CustomPacketPayload.Type<T> type) {
+		ServerPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
+			ServerPlayer player = context.player();
+			player.server.execute(() -> packet.process(player));
 		});
 	}
 	
 	@Environment(EnvType.CLIENT)
-	private <T extends ICarbonPacket> void registerClientPacket(String id, Supplier<T> creator) {
+	private <T extends ICarbonPacket> void registerClientPacket(CustomPacketPayload.Type<T> type) {
 		//Have to use wrapper because fabric doesn't delete subclasses properly...
-		ClientPlayNetworking.registerGlobalReceiver(new ResourceLocation("carbonconfig", id), new ClientReceiver<>(creator));
+		ClientPlayNetworking.registerGlobalReceiver(type, new ClientReceiver<T>());
 	}
 	
 	public boolean isInWorld() {
@@ -91,25 +92,13 @@ public class CarbonNetwork
 		return mc == null ? null : mc.player;
 	}
 	
-	protected ResourceLocation toId(ICarbonPacket packet) {
-		return mappedPackets.get(packet.getClass());
-	}
-	
-	protected FriendlyByteBuf toData(ICarbonPacket packet) {
-		FriendlyByteBuf buf = PacketByteBufs.create();
-		packet.write(buf);
-		return buf;
-	}
-	
 	public void sendToServer(ICarbonPacket packet) {
-		ClientPlayNetworking.send(toId(packet), toData(packet));
+		ClientPlayNetworking.send(packet);
 	}
 	
 	public void sendToAllPlayers(ICarbonPacket packet) {
-		ResourceLocation id = toId(packet);
-		FriendlyByteBuf data = toData(packet);
 		for(ServerPlayer player : getAllPlayers()) {
-			ServerPlayNetworking.send(player, id, data);
+			ServerPlayNetworking.send(player, packet);
 		}
 	}
 	
@@ -143,24 +132,16 @@ public class CarbonNetwork
 		if(!(player instanceof ServerPlayer)) {
 			throw new RuntimeException("Sending a Packet to a Player from client is not allowed");
 		}
-		ServerPlayNetworking.send((ServerPlayer)player, toId(packet), toData(packet));
+		ServerPlayNetworking.send((ServerPlayer)player, packet);
 	}
 	
 	@Environment(EnvType.CLIENT)
-	private static class ClientReceiver<T extends ICarbonPacket> implements PlayChannelHandler {
-		Supplier<T> creator;
-		
-		public ClientReceiver(Supplier<T> creator) {
-			this.creator = creator;
-		}
+	private static class ClientReceiver<T extends ICarbonPacket> implements PlayPayloadHandler<T> {
 		
 		@Override
-		public void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {			
-			T packet = creator.get();
-			packet.read(buf);
-			//Lets hope local players are covered by this, because Fabric MUST SUCK THIS BADLY
-			client.execute(() -> packet.process(client.player));
+		public void receive(T payload, Context context) {
+			LocalPlayer player = context.player();
+			context.client().execute(() -> payload.process(player));
 		}
-		
 	}
 }

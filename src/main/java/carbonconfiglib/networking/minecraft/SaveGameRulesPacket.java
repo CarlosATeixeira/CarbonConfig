@@ -7,6 +7,8 @@ import carbonconfiglib.impl.internal.EventHandler;
 import carbonconfiglib.networking.ICarbonPacket;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
@@ -28,22 +30,25 @@ import net.minecraft.world.level.GameRules;
  */
 public class SaveGameRulesPacket implements ICarbonPacket
 {
+    public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, ICarbonPacket.readPacket(SaveGameRulesPacket::new));
+	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:save_mc");
 	GameRules rules;
 	
 	public SaveGameRulesPacket() {}
 	public SaveGameRulesPacket(GameRules rules) {
 		this.rules = rules;
 	}
-
-	@Override
+	
+	public SaveGameRulesPacket(FriendlyByteBuf buffer) {
+		rules = new GameRules(new Dynamic<>(NbtOps.INSTANCE, buffer.readNbt()));
+	}
+	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeNbt(rules.createTag());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buffer) {
-		rules = new GameRules(new Dynamic<>(NbtOps.INSTANCE, buffer.readNbt()));
-	}
+	public Type<? extends CustomPacketPayload> type() { return ID; }
 	
 	@Override
 	public void process(Player player) {
