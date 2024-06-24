@@ -22,10 +22,10 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class Icon
 {
-	private static final ResourceLocation LOGO_TEXTURE = new ResourceLocation("carbonconfig:textures/gui/logo.png");
+	private static final ResourceLocation LOGO_TEXTURE = ResourceLocation.parse("carbonconfig:textures/gui/logo.png");
 	public static final Icon LOGO = new Icon(LOGO_TEXTURE, 0, 0, 400, 400);
 	
-	private static final ResourceLocation ICONS = new ResourceLocation("carbonconfig:textures/gui/icons.png");
+	private static final ResourceLocation ICONS = ResourceLocation.parse("carbonconfig:textures/gui/icons.png");
 	public static final Icon DELETE = new Icon(ICONS, 0, 16, 80, 64);
 	public static final Icon REVERT = new Icon(ICONS, 0, 0, 80, 64);
 	public static final Icon SET_DEFAULT = new Icon(ICONS, 16, 0, 80, 64);

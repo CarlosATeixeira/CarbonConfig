@@ -31,7 +31,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 public class SaveGameRulesPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, ICarbonPacket.readPacket(SaveGameRulesPacket::new));
-	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:save_mc");
+	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = ICarbonPacket.createType("carbonconfig:save_mc");
 	GameRules rules;
 	
 	public SaveGameRulesPacket(GameRules rules) {

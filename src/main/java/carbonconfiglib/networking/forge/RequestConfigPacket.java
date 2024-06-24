@@ -32,7 +32,7 @@ import net.neoforged.fml.config.ModConfig;
 public class RequestConfigPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, RequestConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(RequestConfigPacket::write, ICarbonPacket.readPacket(RequestConfigPacket::new));
-	public static final CustomPacketPayload.Type<RequestConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:request_neo");
+	public static final CustomPacketPayload.Type<RequestConfigPacket> ID = ICarbonPacket.createType("carbonconfig:request_neo");
 	ModConfig.Type type;
 	UUID requestId;
 	String modId;

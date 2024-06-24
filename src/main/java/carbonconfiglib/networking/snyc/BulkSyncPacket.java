@@ -31,7 +31,7 @@ import net.minecraft.world.entity.player.Player;
 public class BulkSyncPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, BulkSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(BulkSyncPacket::write, ICarbonPacket.readPacket(BulkSyncPacket::new));
-	public static final Type<BulkSyncPacket> ID = CustomPacketPayload.createType("carbonconfig:bulksync");
+	public static final Type<BulkSyncPacket> ID = ICarbonPacket.createType("carbonconfig:bulksync");
 	List<SyncPacket> packets = new ObjectArrayList<>();
 	
 	public BulkSyncPacket(List<SyncPacket> packets) {

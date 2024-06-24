@@ -41,11 +41,10 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.mclanguageprovider.MinecraftModContainer;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingIn;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import net.neoforged.neoforge.event.TickEvent.ClientTickEvent;
-import net.neoforged.neoforge.event.TickEvent.Phase;
-import net.neoforged.neoforge.event.TickEvent.ServerTickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 import speiger.src.collections.objects.maps.impl.hash.Object2ObjectLinkedOpenHashMap;
@@ -86,6 +85,7 @@ public class EventHandler implements IConfigChangeListener
 	public void initMinecraftDataTypes(ConfigHandler config) {
 		config.addParser('C', ColorValue::parse);
 		config.addTempParser('R');
+		config.addTempParser('r');
 		config.addTempParser('K');
 	}
 	
@@ -117,14 +117,14 @@ public class EventHandler implements IConfigChangeListener
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.DEDICATED_SERVER)
-	public void onServerTickEvent(ServerTickEvent event) {
-		if(event.phase == Phase.END) processEvents();
+	public void onServerTickEvent(ServerTickEvent.Post event) {
+		processEvents();
 	}
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void onClientTickEvent(ClientTickEvent event) {
-		if(event.phase == Phase.END) processEvents();		
+	public void onClientTickEvent(ClientTickEvent.Post event) {
+		processEvents();		
 	}
 	
 	@OnlyIn(Dist.CLIENT)

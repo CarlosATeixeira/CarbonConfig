@@ -29,7 +29,7 @@ import net.neoforged.api.distmarker.Dist;
 public class StateSyncPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, SaveGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveGameRulesPacket::write, ICarbonPacket.readPacket(SaveGameRulesPacket::new));
-	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:state");
+	public static final CustomPacketPayload.Type<SaveGameRulesPacket> ID = ICarbonPacket.createType("carbonconfig:state");
 	Dist source;
 	
 	public StateSyncPacket(Dist source) {

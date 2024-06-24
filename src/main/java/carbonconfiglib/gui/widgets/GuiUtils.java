@@ -8,6 +8,7 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
@@ -133,14 +134,13 @@ public class GuiUtils
 		float t_maxY = (texY + texHeight) / textureHeight;
 		
 		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuilder();
+		BufferBuilder bufferbuilder = tessellator.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		bufferbuilder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferbuilder.vertex(matrix, x, maxY, 0).uv(t_minX, t_maxY).endVertex();
-		bufferbuilder.vertex(matrix, maxX, maxY, 0).uv(t_maxX, t_maxY).endVertex();
-		bufferbuilder.vertex(matrix, maxX, y, 0).uv(t_maxX, t_minY).endVertex();
-		bufferbuilder.vertex(matrix, x, y, 0).uv(t_minX, t_minY).endVertex();
-		tessellator.end();
+		bufferbuilder.addVertex(matrix, x, maxY, 0).setUv(t_minX, t_maxY);
+		bufferbuilder.addVertex(matrix, maxX, maxY, 0).setUv(t_maxX, t_maxY);
+		bufferbuilder.addVertex(matrix, maxX, y, 0).setUv(t_maxX, t_minY);
+		bufferbuilder.addVertex(matrix, x, y, 0).setUv(t_minX, t_minY);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 	}
 	
 	public static class Rect {

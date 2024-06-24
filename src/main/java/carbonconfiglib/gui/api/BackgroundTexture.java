@@ -95,11 +95,11 @@ public class BackgroundTexture
 		BackgroundTexture texture = new BackgroundTexture();
 		
 		public Builder withBackground(String id) {
-			return withBackground(new ResourceLocation(id));
+			return withBackground(ResourceLocation.parse(id));
 		}
 		
 		public Builder withBackground(String namespace, String path) {
-			return withBackground(new ResourceLocation(namespace, path));
+			return withBackground(ResourceLocation.fromNamespaceAndPath(namespace, path));
 		}
 		
 		public Builder withBackground(ResourceLocation texture) {
@@ -108,11 +108,11 @@ public class BackgroundTexture
 		}
 		
 		public Builder withForeground(String id) {
-			return withForeground(new ResourceLocation(id));
+			return withForeground(ResourceLocation.parse(id));
 		}
 		
 		public Builder withForeground(String namespace, String path) {
-			return withForeground(new ResourceLocation(namespace, path));
+			return withForeground(ResourceLocation.fromNamespaceAndPath(namespace, path));
 		}
 		
 		public Builder withForeground(ResourceLocation texture) {
@@ -121,11 +121,11 @@ public class BackgroundTexture
 		}
 		
 		public Builder withTexture(String id) {
-			return withTexture(new ResourceLocation(id));
+			return withTexture(ResourceLocation.parse(id));
 		}
 		
 		public Builder withTexture(String namespace, String path) {
-			return withTexture(new ResourceLocation(namespace, path));
+			return withTexture(ResourceLocation.fromNamespaceAndPath(namespace, path));
 		}
 		
 		public Builder withTexture(ResourceLocation texture) {

@@ -39,7 +39,7 @@ import net.minecraft.world.entity.player.Player;
 public class SyncPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, SyncPacket> STREAM_CODEC = CustomPacketPayload.codec(SyncPacket::write, ICarbonPacket.readPacket(SyncPacket::new));
-	public static final Type<SyncPacket> ID = CustomPacketPayload.createType("carbonconfig:sync");
+	public static final Type<SyncPacket> ID = ICarbonPacket.createType("carbonconfig:sync");
 	
 	String identifier;
 	SyncType type;

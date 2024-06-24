@@ -24,6 +24,7 @@ import carbonconfiglib.gui.screen.RequestScreen;
 import carbonconfiglib.impl.PerWorldProxy;
 import carbonconfiglib.impl.ReloadMode;
 import carbonconfiglib.impl.entries.ColorValue;
+import carbonconfiglib.impl.entries.EnchantmentSuggestions;
 import carbonconfiglib.impl.entries.RegistryKeyValue;
 import carbonconfiglib.impl.entries.RegistryValue;
 import carbonconfiglib.impl.internal.ConfigLogger;
@@ -34,6 +35,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
@@ -77,10 +79,10 @@ public class CarbonConfig
 	public static BoolValue FORCE_CUSTOM_BACKGROUND;
 	public static EnumValue<BackgroundTypes> BACKGROUNDS;
 	public static BoolValue INGAME_BACKGROUND;
+	public static BoolValue SHOW_MISSING_ENCHANTMENT_TEXTURE;
 	
 	public CarbonConfig(IEventBus bus)
 	{
-		LOGGER.info("Called");
 		bus.addListener(NETWORK::init);
 		bus.addListener(this::onCommonLoad);
 		NeoForge.EVENT_BUS.addListener(this::load);
@@ -96,6 +98,8 @@ public class CarbonConfig
 			BACKGROUNDS = section.addEnum("custom-background", BackgroundTypes.PLANKS, BackgroundTypes.class, "Allows to pick for a Custom Background for Configs that use the default Background");
 			FORCE_CUSTOM_BACKGROUND = section.addBool("force-custom-background", false, "Allows to force your Selected Background to be used everywhere instead of just default Backgrounds");
 			INGAME_BACKGROUND = section.addBool("ingame-background", false, "Allows to set if the background is always visible or only if you are not in a active world");
+			SHOW_MISSING_ENCHANTMENT_TEXTURE = section.addBool("show-missing-texture", true, "Enables that if enchantments are not accessible that missing textures will be shown instead of nothing");
+			config.add("testing").addString("Testing", Enchantments.AQUA_AFFINITY.location().toString()).addSuggestionProvider(EnchantmentSuggestions.INSTANCE);
 			handler = CONFIGS.createConfig(config, ConfigSettings.withConfigType(ConfigType.CLIENT).withAutomations(AutomationType.AUTO_LOAD));
 			handler.register();
 		}

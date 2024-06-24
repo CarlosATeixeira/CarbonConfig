@@ -33,7 +33,7 @@ import net.neoforged.fml.config.ModConfig;
 public class SaveForgeConfigPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, SaveForgeConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveForgeConfigPacket::write, ICarbonPacket.readPacket(SaveForgeConfigPacket::new));
-	public static final CustomPacketPayload.Type<SaveForgeConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:save_neo");
+	public static final CustomPacketPayload.Type<SaveForgeConfigPacket> ID = ICarbonPacket.createType("carbonconfig:save_neo");
 	ModConfig.Type type;
 	String modId;
 	byte[] data;
