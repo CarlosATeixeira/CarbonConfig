@@ -28,8 +28,8 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class CarbonIconCheckbox extends AbstractButton
 {
-	private static final ResourceLocation CHECKBOX_HIGHLIGHTED_SPRITE = new ResourceLocation("widget/checkbox_highlighted");
-	private static final ResourceLocation CHECKBOX_SPRITE = new ResourceLocation("widget/checkbox");
+	private static final ResourceLocation CHECKBOX_HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("widget/checkbox_highlighted");
+	private static final ResourceLocation CHECKBOX_SPRITE = ResourceLocation.withDefaultNamespace("widget/checkbox");
 	private boolean selected;
 	Icon selectedIcon;
 	Icon unselectedIcon;

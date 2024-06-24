@@ -27,7 +27,7 @@ import net.minecraft.world.entity.player.Player;
 public class SaveConfigPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, SaveConfigPacket> STREAM_CODEC = CustomPacketPayload.codec(SaveConfigPacket::write, ICarbonPacket.readPacket(SaveConfigPacket::new));
-	public static final Type<SaveConfigPacket> ID = CustomPacketPayload.createType("carbonconfig:save_carbon");
+	public static final Type<SaveConfigPacket> ID = ICarbonPacket.createType("carbonconfig:save_carbon");
 	String identifier;
 	String data;
 	

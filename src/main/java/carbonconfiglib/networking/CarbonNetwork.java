@@ -115,7 +115,7 @@ public class CarbonNetwork
 	}
 	
 	public boolean isInstalledOnClient(ServerPlayer player) {
-		return ServerPlayNetworking.canSend(player, new ResourceLocation("carbonconfig", "sync"));
+		return ServerPlayNetworking.canSend(player, ResourceLocation.fromNamespaceAndPath("carbonconfig", "sync"));
 	}
 	
 	@Environment(EnvType.CLIENT)
@@ -125,7 +125,7 @@ public class CarbonNetwork
 	
 	@Environment(EnvType.CLIENT)
 	public boolean isInstalledOnServer(LocalPlayer player) {
-		return ClientPlayNetworking.canSend(new ResourceLocation("carbonconfig", "sync"));
+		return ClientPlayNetworking.canSend(ResourceLocation.fromNamespaceAndPath("carbonconfig", "sync"));
 	}
 	
 	public void sendToPlayer(ICarbonPacket packet, Player player) {

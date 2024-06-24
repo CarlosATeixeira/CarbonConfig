@@ -32,7 +32,7 @@ import net.minecraft.world.entity.player.Player;
 public class ConfigAnswerPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, ConfigAnswerPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigAnswerPacket::write, ICarbonPacket.readPacket(ConfigAnswerPacket::new));
-	public static final Type<ConfigAnswerPacket> ID = CustomPacketPayload.createType("carbonconfig:answer");
+	public static final Type<ConfigAnswerPacket> ID = ICarbonPacket.createType("carbonconfig:answer");
 	UUID id;
 	byte[] data;
 		

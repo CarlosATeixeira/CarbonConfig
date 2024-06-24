@@ -5,16 +5,23 @@ import java.util.Optional;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import carbonconfiglib.CarbonConfig;
 import carbonconfiglib.gui.api.ISuggestionRenderer;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -90,10 +97,25 @@ public class SuggestionRenderers
 		public Component renderSuggestion(GuiGraphics graphics, String value, int x, int y) {
 			ResourceLocation id = ResourceLocation.tryParse(value);
 			if(id == null) return null;
-			Enchantment ench = BuiltInRegistries.ENCHANTMENT.get(id);
+			ClientLevel level = Minecraft.getInstance().level;
+			if(level == null) {
+				if(CarbonConfig.SHOW_MISSING_ENCHANTMENT_TEXTURE.get()) {
+					graphics.blit(x, y, 0, 18, 18, Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation()));
+					return Component.translatable("gui.carbonconfig.enchantment.missing").withStyle(ChatFormatting.RED);
+				}
+				return null;
+			}
+			Holder<Enchantment> holder = getEnchantmnetById(level, id);
+			if(holder == null) return null;
+			Enchantment ench = holder.value();
 			if(ench == null) return null;
-			graphics.renderItem(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ench, ench.getMinLevel())), x, y);
-			return ench.getFullname(ench.getMinLevel()).copy().withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));
+			graphics.renderItem(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(holder, ench.getMinLevel())), x, y);
+			return Enchantment.getFullname(holder, ench.getMinLevel()).copy().withStyle(ChatFormatting.YELLOW).append("\n").append(Component.literal(id.toString()).withStyle(ChatFormatting.GRAY));
+		}
+		
+		private Holder<Enchantment> getEnchantmnetById(ClientLevel level, ResourceLocation id) {
+			try { return level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, id)); }
+			catch(Exception e) { return null; }
 		}
 	}
 	

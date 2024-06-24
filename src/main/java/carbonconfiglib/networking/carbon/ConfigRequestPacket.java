@@ -30,7 +30,7 @@ import net.minecraft.world.entity.player.Player;
 public class ConfigRequestPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, ConfigRequestPacket> STREAM_CODEC = CustomPacketPayload.codec(ConfigRequestPacket::write, ICarbonPacket.readPacket(ConfigRequestPacket::new));
-	public static final Type<ConfigRequestPacket> ID = CustomPacketPayload.createType("carbonconfig:request_carbon");
+	public static final Type<ConfigRequestPacket> ID = ICarbonPacket.createType("carbonconfig:request_carbon");
 	UUID id;
 	String identifier;
 	

@@ -31,7 +31,7 @@ import net.minecraft.world.entity.player.Player;
 public class RequestGameRulesPacket implements ICarbonPacket
 {
     public static final StreamCodec<FriendlyByteBuf, RequestGameRulesPacket> STREAM_CODEC = CustomPacketPayload.codec(RequestGameRulesPacket::write, ICarbonPacket.readPacket(RequestGameRulesPacket::new));
-	public static final CustomPacketPayload.Type<RequestGameRulesPacket> ID = CustomPacketPayload.createType("carbonconfig:request_mc");
+	public static final CustomPacketPayload.Type<RequestGameRulesPacket> ID = ICarbonPacket.createType("carbonconfig:request_mc");
 	UUID requestId;
 	
 	public RequestGameRulesPacket() {}

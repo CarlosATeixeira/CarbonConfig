@@ -8,6 +8,7 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -121,8 +122,7 @@ public class GuiUtils
 	
 	private static void drawTexture(GuiGraphics poseStack, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight, int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel) {
 		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder builder = tessellator.getBuilder();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		BufferBuilder builder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 		Matrix4f matrix = poseStack.pose().last().pose();
 		RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 		RenderSystem.enableBlend();
@@ -153,14 +153,14 @@ public class GuiUtils
 			drawTextured(poseStack, x, y + topBorder + (j * fillerHeight), u, v + topBorder, leftBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel, builder, matrix);
 			drawTextured(poseStack, x + leftBorder + canvasWidth, y + topBorder + (j * fillerHeight), u + leftBorder + fillerWidth, v + topBorder, rightBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel, builder, matrix);
 		}
-		tessellator.end();
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 	
 	private static void drawTextured(GuiGraphics poseStack, int x, int y, int u, int v, int width, int height, float zLevel, BufferBuilder builder, Matrix4f matrix) {
-		builder.vertex(matrix, x, y + height, zLevel).uv(u * U_SCALE, (v + height) * V_SCALE).endVertex();
-		builder.vertex(matrix, x + width, y + height, zLevel).uv((u + width) * U_SCALE, (v + height) * V_SCALE).endVertex();
-		builder.vertex(matrix, x + width, y, zLevel).uv((u + width) * U_SCALE, v * V_SCALE).endVertex();
-		builder.vertex(matrix, x, y, zLevel).uv(u * U_SCALE, v * V_SCALE).endVertex();
+		builder.addVertex(matrix, x, y + height, zLevel).setUv(u * U_SCALE, (v + height) * V_SCALE);
+		builder.addVertex(matrix, x + width, y + height, zLevel).setUv((u + width) * U_SCALE, (v + height) * V_SCALE);
+		builder.addVertex(matrix, x + width, y, zLevel).setUv((u + width) * U_SCALE, v * V_SCALE);
+		builder.addVertex(matrix, x, y, zLevel).setUv(u * U_SCALE, v * V_SCALE);
 	}
 	
 	public static void drawTextureRegion(GuiGraphics stack, float x, float y, float width, float height, Icon icon, float texWidth, float texHeight) {
@@ -183,14 +183,13 @@ public class GuiUtils
 		float t_maxY = (texY + texHeight) / textureHeight;
 		
 		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuilder();
+		BufferBuilder bufferbuilder = tessellator.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		bufferbuilder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		bufferbuilder.vertex(matrix, x, maxY, 0).uv(t_minX, t_maxY).endVertex();
-		bufferbuilder.vertex(matrix, maxX, maxY, 0).uv(t_maxX, t_maxY).endVertex();
-		bufferbuilder.vertex(matrix, maxX, y, 0).uv(t_maxX, t_minY).endVertex();
-		bufferbuilder.vertex(matrix, x, y, 0).uv(t_minX, t_minY).endVertex();
-		tessellator.end();
+		bufferbuilder.addVertex(matrix, x, maxY, 0).setUv(t_minX, t_maxY);
+		bufferbuilder.addVertex(matrix, maxX, maxY, 0).setUv(t_maxX, t_maxY);
+		bufferbuilder.addVertex(matrix, maxX, y, 0).setUv(t_maxX, t_minY);
+		bufferbuilder.addVertex(matrix, x, y, 0).setUv(t_minX, t_minY);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
 	}
 	
 	public static class Rect {

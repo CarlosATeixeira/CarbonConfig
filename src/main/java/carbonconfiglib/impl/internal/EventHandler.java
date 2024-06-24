@@ -112,6 +112,7 @@ public class EventHandler implements IConfigChangeListener
 	public void initMinecraftDataTypes(ConfigHandler config) {
 		config.addParser('C', ColorValue::parse);
 		config.addTempParser('R');
+		config.addTempParser('r');
 		config.addTempParser('K');
 	}
 	

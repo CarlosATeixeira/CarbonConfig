@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class CarbonButton extends Button
 {
-	private static final WidgetSprites SPRITES = new WidgetSprites(new ResourceLocation("widget/button"), new ResourceLocation("widget/button_disabled"), new ResourceLocation("widget/button_highlighted"));
+	private static final WidgetSprites SPRITES = new WidgetSprites(ResourceLocation.withDefaultNamespace("widget/button"), ResourceLocation.withDefaultNamespace("widget/button_disabled"), ResourceLocation.withDefaultNamespace("widget/button_highlighted"));
 	int hash;
 
 	public CarbonButton(int i, int j, int k, int l, Component component, OnPress onPress, CreateNarration createNarration) {

@@ -31,7 +31,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class CarbonIconButton extends AbstractButton
 {
-	private static final WidgetSprites SPRITES = new WidgetSprites(new ResourceLocation("widget/button"), new ResourceLocation("widget/button_disabled"), new ResourceLocation("widget/button_highlighted"));
+	private static final WidgetSprites SPRITES = new WidgetSprites(ResourceLocation.withDefaultNamespace("widget/button"), ResourceLocation.withDefaultNamespace("widget/button_disabled"), ResourceLocation.withDefaultNamespace("widget/button_highlighted"));
 	Consumer<CarbonIconButton> listener;
 	Icon icon;
 	boolean iconOnly = false;
