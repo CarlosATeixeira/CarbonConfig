@@ -2,7 +2,7 @@ plugins {
     id 'eclipse'
     id 'java-library'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
     id 'net.darkhax.curseforgegradle' version '1.1.15'
     id 'com.modrinth.minotaur' version '2.+'
 }
@@ -15,7 +15,7 @@ version = MC_VERSION + '-' + MOD_VERSION
 group = 'carbonconfiglib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'CarbonConfig'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
@@ -29,7 +29,8 @@ sourceSets {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.20.4'
+    mappings channel: 'official', version: '1.21'
+    reobf = false
     runs {
         client {
             workingDirectory project.file('run')
@@ -81,7 +82,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.4-49.0.38'
+    minecraft 'net.minecraftforge:forge:1.21-51.0.17'
 //	implementation fg.deobf("curse.maven:the-one-probe-245211:3965693")
     minecraftLibrary ':Primitive Collections-0.8.9'
     jarJar(group: 'com.github.Speiger', name: 'Primitive Collections', version: '[0.8,0.9)') {
@@ -103,11 +104,6 @@ jar {
     }
 }
 
-jar.finalizedBy('reobfJar')
-reobf {
-    jarJar { }
-}
-tasks.jarJar.finalizedBy('reobfJarJar')
 
 task deobfJar(type: Jar) {
     archiveClassifier.set("deobf")
@@ -137,7 +133,6 @@ tasks.withType(JavaCompile).configureEach {
 
 task renameBuild (type: Copy) {
 	dependsOn jar
-	dependsOn reobf
 	include "*-all.jar"
     from ('build/libs')
     into ('build/libs')
@@ -161,13 +156,12 @@ task publishMods() {
 		System.out.println("Published Mods to Curseforge/Modrinth")
 	}
 }
-tasks.reobfJarJar.finalizedBy('renameBuild')
-renameBuild.mustRunAfter('reobfJar')
+
+tasks.jarJar.finalizedBy('renameBuild')
 renameBuild.finalizedBy('deleteBuild')
 publishMods.dependsOn('modrinth')
 publishMods.dependsOn('curseforge')
 assemble.mustRunAfter('renameBuild')
-
 
 modrinth {
 	token = System.getenv("Modrinth_API_Token");

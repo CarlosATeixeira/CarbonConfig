@@ -54,7 +54,7 @@ public class CarbonNetwork
 	boolean serverInstalled = false;
 	
 	public void init() {
-		channel = ChannelBuilder.named(new ResourceLocation("carbonconfig", "networking")).optional().simpleChannel();	
+		channel = ChannelBuilder.named(ResourceLocation.fromNamespaceAndPath("carbonconfig", "networking")).optional().simpleChannel();	
 		registerPacket(0, SyncPacket.class, SyncPacket::new);
 		registerPacket(1, BulkSyncPacket.class, BulkSyncPacket::new);
 		registerPacket(2, ConfigRequestPacket.class, ConfigRequestPacket::new);

@@ -8,6 +8,7 @@ import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -190,15 +191,17 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	
 	public void setCustomBackground(BackgroundHolder customBackground) {
 		this.customBackground = customBackground;
-		setRenderBackground(this.customBackground == null);
 	}
 	
 	@Override
-	protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-		if(customBackground != null && (minecraft.level == null || !customBackground.shouldDisableInLevel())) {
-			renderBackground(getX(), getRight(), getY(), getBottom(), (float)getScrollAmount(), customBackground.getTexture());			
+	protected void renderListBackground(GuiGraphics graphics) {
+		if(customBackground != null) {
+			if((minecraft.level == null || !customBackground.shouldDisableInLevel())) {
+				renderBackground(getX(), getRight(), getY(), getBottom(), (float)getScrollAmount(), customBackground.getTexture());			
+			}
+			return;
 		}
-		super.renderList(graphics, mouseX, mouseY, partialTicks);
+		super.renderListBackground(graphics);
 	}
 	
 	@Override
@@ -209,51 +212,49 @@ public class ElementList extends ContainerObjectSelectionList<Element>
 	
 	public static void renderListOverlay(int x0, int x1, int y0, int y1, int width, int endY, BackgroundTexture texture) {
 		Tesselator tes = Tesselator.getInstance();
-		BufferBuilder builder = tes.getBuilder();
+		BufferBuilder builder = tes.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderTexture(0, texture.getForegroundTexture());
 		RenderSystem.enableDepthTest();
 		RenderSystem.depthFunc(519);
 		int color = texture.getForegroundBrightness();
-		builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-		builder.vertex(x0, y0, -100D).uv(0, y0 / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0 + width, y0, -100D).uv(width / 32F, y0 / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0 + width, 0D, -100D).uv(width / 32F, 0F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0, 0D, -100D).uv(0F, 0F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0, endY, -100D).uv(0F, endY / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0 + width, endY, -100D).uv(width / 32F, endY / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0 + width, y1, -100D).uv(width / 32F, y1 / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0, y1, -100D).uv(0F, y1 / 32F).color(color, color, color, 255).endVertex();
-		tes.end();
+		builder.addVertex(x0, y0, -100F).setUv(0, y0 / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x0 + width, y0, -100F).setUv(width / 32F, y0 / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x0 + width, 0F, -100F).setUv(width / 32F, 0F).setColor(color, color, color, 255);
+		builder.addVertex(x0, 0F, -100F).setUv(0F, 0F).setColor(color, color, color, 255);
+		builder.addVertex(x0, endY, -100F).setUv(0F, endY / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x0 + width, endY, -100F).setUv(width / 32F, endY / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x0 + width, y1, -100F).setUv(width / 32F, y1 / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x0, y1, -100F).setUv(0F, y1 / 32F).setColor(color, color, color, 255);
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 		RenderSystem.depthFunc(515);
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		RenderSystem.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ZERO, DestFactor.ONE);
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		builder.vertex(x0, y0 + 4, 0D).color(0, 0, 0, 0).endVertex();
-		builder.vertex(x1, y0 + 4, 0D).color(0, 0, 0, 0).endVertex();
-		builder.vertex(x1, y0, 0D).color(0, 0, 0, 255).endVertex();
-		builder.vertex(x0, y0, 0D).color(0, 0, 0, 255).endVertex();
-		builder.vertex(x0, y1, 0D).color(0, 0, 0, 255).endVertex();
-		builder.vertex(x1, y1, 0D).color(0, 0, 0, 255).endVertex();
-		builder.vertex(x1, y1 - 4, 0D).color(0, 0, 0, 0).endVertex();
-		builder.vertex(x0, y1 - 4, 0D).color(0, 0, 0, 0).endVertex();
-		tes.end();
+		builder = tes.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		builder.addVertex(x0, y0 + 4, 0F).setColor(0, 0, 0, 0);
+		builder.addVertex(x1, y0 + 4, 0F).setColor(0, 0, 0, 0);
+		builder.addVertex(x1, y0, 0F).setColor(0, 0, 0, 255);
+		builder.addVertex(x0, y0, 0F).setColor(0, 0, 0, 255);
+		builder.addVertex(x0, y1, 0F).setColor(0, 0, 0, 255);
+		builder.addVertex(x1, y1, 0F).setColor(0, 0, 0, 255);
+		builder.addVertex(x1, y1 - 4, 0F).setColor(0, 0, 0, 0);
+		builder.addVertex(x0, y1 - 4, 0F).setColor(0, 0, 0, 0);
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 	
 	public static void renderBackground(int x0, int x1, int y0, int y1, float scroll, BackgroundTexture texture) {
 		Tesselator tes = Tesselator.getInstance();
-		BufferBuilder builder = tes.getBuilder();
+		BufferBuilder builder = tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderTexture(0, texture.getBackgroundTexture());
 		RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 		int color = texture.getBackgroundBrightness();
-		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-		builder.vertex(x0, y1, 0D).uv(x0 / 32F, (y1 + scroll) / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x1, y1, 0D).uv(x1 / 32F, (y1 + scroll) / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x1, y0, 0D).uv(x1 / 32F, (y0 + scroll) / 32F).color(color, color, color, 255).endVertex();
-		builder.vertex(x0, y0, 0D).uv(x0 / 32F, (y0 + scroll) / 32F).color(color, color, color, 255).endVertex();
-		tes.end();
+		builder.addVertex(x0, y1, 0F).setUv(x0 / 32F, (y1 + scroll) / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x1, y1, 0F).setUv(x1 / 32F, (y1 + scroll) / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x1, y0, 0F).setUv(x1 / 32F, (y0 + scroll) / 32F).setColor(color, color, color, 255);
+		builder.addVertex(x0, y0, 0F).setUv(x0 / 32F, (y0 + scroll) / 32F).setColor(color, color, color, 255);
+		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 }
