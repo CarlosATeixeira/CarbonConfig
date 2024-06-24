@@ -99,7 +99,6 @@ public class CarbonConfig
 			FORCE_CUSTOM_BACKGROUND = section.addBool("force-custom-background", false, "Allows to force your Selected Background to be used everywhere instead of just default Backgrounds");
 			INGAME_BACKGROUND = section.addBool("ingame-background", false, "Allows to set if the background is always visible or only if you are not in a active world");
 			SHOW_MISSING_ENCHANTMENT_TEXTURE = section.addBool("show-missing-texture", true, "Enables that if enchantments are not accessible that missing textures will be shown instead of nothing");
-			config.add("testing").addString("Testing", Enchantments.AQUA_AFFINITY.location().toString()).addSuggestionProvider(EnchantmentSuggestions.INSTANCE);
 			handler = CONFIGS.createConfig(config, ConfigSettings.withConfigType(ConfigType.CLIENT).withAutomations(AutomationType.AUTO_LOAD));
 			handler.register();
 		}
