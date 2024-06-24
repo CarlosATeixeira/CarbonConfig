@@ -9,7 +9,6 @@ plugins {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
-jarJar.enable()
 
 version = MC_VERSION + '-' + MOD_VERSION
 group = 'carbonconfiglib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -84,10 +83,8 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.21-51.0.17'
 //	implementation fg.deobf("curse.maven:the-one-probe-245211:3965693")
-    minecraftLibrary ':Primitive Collections-0.8.9'
-    jarJar(group: 'com.github.Speiger', name: 'Primitive Collections', version: '[0.8,0.9)') {
-	 	jarJar.pin(it, "0.8.9")
-	}
+    minecraftLibrary':Primitive Collections-0.8.9'
+	implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 }
 
 jar {
@@ -102,16 +99,11 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
-}
-
-
-task deobfJar(type: Jar) {
-    archiveClassifier.set("deobf")
-    from sourceSets.main.output
-}
-
-artifacts {
-    archives deobfJar
+    dependsOn configurations.runtimeClasspath
+	from {
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+		configurations.runtimeClasspath.findAll { it.name.equalsIgnoreCase('Primitive Collections-0.8.9.jar') }.collect { zipTree(it) }	
+	}
 }
 
 publishing {
@@ -131,24 +123,6 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-task renameBuild (type: Copy) {
-	dependsOn jar
-	include "*-all.jar"
-    from ('build/libs')
-    into ('build/libs')
-    rename { name ->  
-    	System.out.println('replacing: '+name)
-    	name.replace '-all', ''
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-task deleteBuild(type: Delete) {
- 	delete fileTree('build/libs') {
- 		include '*-all.jar'
-	}
-}
-
 task publishMods() {
 	group 'publishing'
 	description 'Publishes the mod to all Mod Distributors'
@@ -157,11 +131,8 @@ task publishMods() {
 	}
 }
 
-tasks.jarJar.finalizedBy('renameBuild')
-renameBuild.finalizedBy('deleteBuild')
 publishMods.dependsOn('modrinth')
 publishMods.dependsOn('curseforge')
-assemble.mustRunAfter('renameBuild')
 
 modrinth {
 	token = System.getenv("Modrinth_API_Token");
@@ -191,5 +162,5 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     mainFile.changelog = changelog.exists() ? changelog.getText('UTF-8') : "";
     mainFile.changelogType = 'markdown'
     mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
-    mainFile.addJavaVersion('Java 17')
+    mainFile.addJavaVersion('Java 21')
 }
