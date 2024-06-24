@@ -47,6 +47,7 @@ repositories {
 
 dependencies {
 //    compile ':Primitive Collections-0.8.9'
+
 }
 
 sourceSets {
@@ -113,4 +114,17 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+    from {
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+		configurations.runtimeClasspath.findAll { it.name.equalsIgnoreCase('Primitive Collections-0.8.9.jar') }.collect { zipTree(it) }	
+	}
+}
+
+artifacts {
+    archives deobfJar
 }
