@@ -111,6 +111,11 @@ task publishMods() {
 	}
 }
 
+//Hotfix because fabric uploads dev jars for some reason. If someone has a better fix a PR would be welcome!
+def getReleaseJar() {
+	return new File(jar.archivePath.getParentFile().getParent(), "libs/"+archivesBaseName+"-"+version+".jar")
+}
+
 publishMods.dependsOn('modrinth')
 publishMods.dependsOn('curseforge')
 
@@ -120,7 +125,7 @@ modrinth {
 	versionName = archivesBaseName.replace(" ", "")+"-"+version
 	versionNumber = MOD_VERSION
 	versionType = RELEASE_TYPE
-	uploadFile = jar
+	uploadFile = getReleaseJar()
 	gameVersions = [MC_VERSION]
 	loaders = ['fabric']
 	dependencies {
@@ -136,8 +141,8 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
 	group 'publishing'
 	description 'Publishes the mod to Curseforge'
 	apiToken = System.getenv("Curseforge_API_Token")
-		
-	def mainFile = upload(898104, jar)
+	
+	def mainFile = upload(898104, getReleaseJar())
     mainFile.releaseType = RELEASE_TYPE
     mainFile.displayName = archivesBaseName.replace(" ", "")+"-"+version
     
