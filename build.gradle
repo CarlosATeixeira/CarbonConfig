@@ -143,4 +143,5 @@ task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     mainFile.changelogType = 'markdown'
     mainFile.addGameVersion(MC_VERSION, 'Server', 'Client')
     mainFile.addJavaVersion('Java 17')
+	mainFile.addModLoader('NeoForge')
 }
