@@ -1,6 +1,5 @@
 package carbonconfiglib.gui.impl.forge;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
@@ -8,13 +7,11 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 
 import carbonconfiglib.utils.Helpers;
 import carbonconfiglib.utils.ParseResult;
-import net.minecraft.world.level.storage.LevelResource;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.config.IConfigEvent;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.config.ModConfig.Type;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -33,23 +30,15 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public class ForgeHelpers
 {
-    private static final LevelResource SERVERCONFIG = new LevelResource("serverconfig");
-    
-	public static Path getConfigFolder(ModConfig.Type type) {
-		return type == Type.SERVER ? ServerLifecycleHooks.getCurrentServer().getWorldPath(SERVERCONFIG) : FMLPaths.CONFIGDIR.get();
-	}
-    
 	public static void saveConfig(Path path, CommentedConfig data) {
 		Helpers.ensureFolder(path.getParent());
 		data.configFormat().createWriter().write(data, path, WritingMode.REPLACE);
 	}
 	
 	public static void saveConfig(CommentedConfig data, ModConfig config) {
-		Path path = getConfigFolder(config.getType()).resolve(config.getFileName());
-		Helpers.ensureFolder(path.getParent());
-		data.configFormat().createWriter().write(data, path, WritingMode.REPLACE);
-		try { config.acceptSyncedConfig(Files.readAllBytes(path)); }
-		catch(Exception e) { e.printStackTrace(); }
+		config.getConfigData().putAll(data);
+		config.save();
+		ModList.get().getModContainerById(config.getModId()).ifPresent(T -> T.dispatchConfigEvent(IConfigEvent.reloading(config)));
 	}
 	
 	public static ParseResult<Boolean> parseBoolean(String value) {
