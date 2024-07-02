@@ -1,24 +1,18 @@
 package carbonconfiglib.gui.impl.forge;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import com.electronwill.nightconfig.toml.TomlFormat;
 
 import carbonconfiglib.impl.Reflects;
 import carbonconfiglib.utils.Helpers;
 import carbonconfiglib.utils.ParseResult;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.ForgeConfigSpec.ValueSpec;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.config.ModConfig.ConfigReloading;
-import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -37,28 +31,17 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
  */
 public class ForgeHelpers
 {    
-	public static Path getConfigFolder(ModConfig.Type type) {
-		if(type == Type.SERVER) {
-			MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-			return server.getActiveAnvilConverter().getFile(server.getFolderName(), "serverconfig").toPath();
-		}
-		return FMLPaths.CONFIGDIR.get();
-	}
-    
 	public static void saveConfig(Path path, CommentedConfig data) {
 		Helpers.ensureFolder(path.getParent());
 		data.configFormat().createWriter().write(data, path, WritingMode.REPLACE);
 	}
 	
 	public static void saveConfig(CommentedConfig data, ModConfig config) {
-		Path path = getConfigFolder(config.getType()).resolve(config.getFileName());
-		Helpers.ensureFolder(path.getParent());
-		data.configFormat().createWriter().write(data, path, WritingMode.REPLACE);
-		try {
-			Reflects.setConfigData(config, TomlFormat.instance().createParser().parse(Files.newInputStream(path)));
-	        ModList.get().getModContainerById(config.getModId()).get().dispatchConfigEvent(Reflects.createEvent(ConfigReloading.class, config));
-		}
-		catch(Exception e) { e.printStackTrace(); }
+		config.getConfigData().putAll(data);
+		config.save();
+		ConfigReloading reloading = Reflects.createEvent(ConfigReloading.class, config);
+		if(reloading == null) return;
+        ModList.get().getModContainerById(config.getModId()).get().dispatchConfigEvent(reloading);
 	}
 	
 	public static ParseResult<Boolean> parseBoolean(String value) {
