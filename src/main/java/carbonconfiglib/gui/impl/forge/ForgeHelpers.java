@@ -9,7 +9,7 @@ import carbonconfiglib.utils.Helpers;
 import carbonconfiglib.utils.ParseResult;
 import net.neoforged.fml.config.IConfigEvent;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.common.ModConfigSpec.Range;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 
 /**
@@ -89,16 +89,8 @@ public class ForgeHelpers
 		return "";
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static Object[] getRangeInfo(ValueSpec spec) {
-		Object obj = spec.getRange();
-		if(obj == null) return null;
-		try {
-            Class<Object> rangeClass = (Class<Object>)Class.forName("net.minecraftforge.common.ForgeConfigSpec$Range");
-            return new Object[] {ObfuscationReflectionHelper.getPrivateValue(rangeClass, obj, "min"), ObfuscationReflectionHelper.getPrivateValue(rangeClass, obj, "max")};
-		}
-		catch(Exception e) { e.printStackTrace(); }
-		return null;
+		Range<?> obj = spec.getRange();
+		return obj == null ? null : new Object[] {obj.getMin(), obj.getMax()};
 	}
-	
 }
