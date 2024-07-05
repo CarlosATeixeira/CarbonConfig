@@ -95,7 +95,7 @@ public class ForgeHelpers
 		Object obj = spec.getRange();
 		if(obj == null) return null;
 		try {
-            Class<Object> rangeClass = (Class<Object>)Class.forName("net.minecraftforge.common.ForgeConfigSpec$Range");
+            Class<Object> rangeClass = (Class<Object>)Class.forName("net.neoforged.neoforge.common.ModConfigSpec$Range");
             return new Object[] {ObfuscationReflectionHelper.getPrivateValue(rangeClass, obj, "min"), ObfuscationReflectionHelper.getPrivateValue(rangeClass, obj, "max")};
 		}
 		catch(Exception e) { e.printStackTrace(); }
