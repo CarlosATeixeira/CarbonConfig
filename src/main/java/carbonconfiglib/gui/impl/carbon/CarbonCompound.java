@@ -3,7 +3,7 @@ package carbonconfiglib.gui.impl.carbon;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,7 +34,7 @@ public class CarbonCompound implements ICompoundNode, IValueActions
 	Component tooltip;
 	Function<String, ParseResult<Boolean>> isValid;
 	Supplier<List<Suggestion>> suggestions;
-	Consumer<String> saveAction;
+	BiConsumer<String, IValueActions> saveAction;
 	
 	Map<String, String> validationTemp = Object2ObjectMap.builder().linkedMap();
 	List<IValueActions> values = new ObjectArrayList<>();
@@ -42,7 +42,7 @@ public class CarbonCompound implements ICompoundNode, IValueActions
 	Map<String, String> current = Object2ObjectMap.builder().linkedMap();
 	Map<String, String> defaultValue = Object2ObjectMap.builder().linkedMap();
 	
-	public CarbonCompound(IReloadMode mode, CompoundData data, Component name, Component tooltip, String value, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Supplier<List<Suggestion>> suggestions, Consumer<String> saveAction) {
+	public CarbonCompound(IReloadMode mode, CompoundData data, Component name, Component tooltip, String value, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Supplier<List<Suggestion>> suggestions, BiConsumer<String, IValueActions> saveAction) {
 		this.mode = mode;
 		this.data = data;
 		this.name = name;
@@ -67,9 +67,9 @@ public class CarbonCompound implements ICompoundNode, IValueActions
 	
 	protected IValueActions addEntry(String value, String defaultValue, IStructuredData type, String key) {
 		switch(type.getDataType()) {
-			case COMPOUND: return new CarbonCompound(mode, type.asCompound(), IConfigNode.createLabel(key), createTooltip(key), value, defaultValue, T -> isValid(key, T), () -> data.getSuggestions(key, this::isSuggestionValid), T -> save(key, T));
-			case LIST: return new CarbonArray(mode, type.asList(), IConfigNode.createLabel(key), createTooltip(key), value, defaultValue, T -> isValid(key, T), () -> data.getSuggestions(key, this::isSuggestionValid), T -> save(key, T));
-			case SIMPLE: return new CarbonValue(mode, IConfigNode.createLabel(key), createTooltip(key), DataType.bySimple(type.asSimple()), data.isForcedSuggestion(key), () -> data.getSuggestions(key, this::isSuggestionValid), value, defaultValue, T -> isValid(key, T), T -> save(key, T));
+			case COMPOUND: return new CarbonCompound(mode, type.asCompound(), IConfigNode.createLabel(key), createTooltip(key), value, defaultValue, T -> isValid(key, T), () -> data.getSuggestions(key, this::isSuggestionValid), (T, V) -> save(key, T));
+			case LIST: return new CarbonArray(mode, type.asList(), IConfigNode.createLabel(key), createTooltip(key), value, defaultValue, T -> isValid(key, T), () -> data.getSuggestions(key, this::isSuggestionValid), (T, V) -> save(key, T));
+			case SIMPLE: return new CarbonValue(mode, IConfigNode.createLabel(key), createTooltip(key), DataType.bySimple(type.asSimple()), data.isForcedSuggestion(key), () -> data.getSuggestions(key, this::isSuggestionValid), value, defaultValue, T -> isValid(key, T), (T, V) -> save(key, T));
 			default: return null;
 		}
 	}
@@ -104,7 +104,7 @@ public class CarbonCompound implements ICompoundNode, IValueActions
 	}
 	
 	@Override
-	public void save() { saveAction.accept(Helpers.mergeCompound(current, false, 0)); }
+	public void save() { saveAction.accept(Helpers.mergeCompound(current, false, 0), this); }
 	@Override
 	public boolean isDefault() { return Objects.equals(defaultValue, current); }
 	@Override
