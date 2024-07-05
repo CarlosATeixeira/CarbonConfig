@@ -1,7 +1,7 @@
 package carbonconfiglib.gui.impl.carbon;
 
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -31,14 +31,14 @@ public class CarbonArray implements IArrayNode, IValueActions
 	ITextComponent tooltip;
 	Function<String, ParseResult<Boolean>> isValid;
 	Supplier<List<Suggestion>> suggestions;
-	Consumer<String> saveAction;
+	BiConsumer<String, IValueActions> saveAction;
 	
 	List<IValueActions> values = new ObjectArrayList<>();
 	Stack<List<String>> previous = new ObjectArrayList<>();
 	ObjectList<String> currentValues;
 	List<String> defaults;
 	
-	public CarbonArray(IReloadMode mode, ListData data, ITextComponent name, ITextComponent tooltip, String currentValue, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Supplier<List<Suggestion>> suggestions, Consumer<String> saveAction) {
+	public CarbonArray(IReloadMode mode, ListData data, ITextComponent name, ITextComponent tooltip, String currentValue, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Supplier<List<Suggestion>> suggestions, BiConsumer<String, IValueActions> saveAction) {
 		this.mode = mode;
 		this.data = data;
 		this.inner = data.getFormat();
@@ -62,9 +62,9 @@ public class CarbonArray implements IArrayNode, IValueActions
 	
 	protected IValueActions addEntry(String value, String defaultValue, int index) {
 		switch(inner.getDataType()) {
-			case COMPOUND: return new CarbonCompound(mode, inner.asCompound(), name.createCopy().appendText(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> data.getSuggestions(T -> true), T -> save(T, index));
-			case LIST: return new CarbonArray(mode, inner.asList(), name.createCopy().appendText(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> data.getSuggestions(T -> true), T -> save(T, index));
-			case SIMPLE: return new CarbonValue(mode, name.createCopy().appendText(" "+index+":"), tooltip, DataType.bySimple(inner.asSimple()), false, () -> data.getSuggestions(T -> true), value, defaultValue, this::isValid, T -> save(T, index));
+			case COMPOUND: return new CarbonCompound(mode, inner.asCompound(), name.createCopy().appendText(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> data.getSuggestions(T -> true), this::save);
+			case LIST: return new CarbonArray(mode, inner.asList(), name.createCopy().appendText(" "+index+":"), tooltip, value, defaultValue, this::isValid, () -> data.getSuggestions(T -> true), this::save);
+			case SIMPLE: return new CarbonValue(mode, name.createCopy().appendText(" "+index+":"), tooltip, DataType.bySimple(inner.asSimple()), false, () -> data.getSuggestions(T -> true), value, defaultValue, this::isValid, this::save);
 			default: return null;
 		}
 	}
@@ -73,7 +73,9 @@ public class CarbonArray implements IArrayNode, IValueActions
 		return isValid.apply(value);
 	}
 	
-	protected void save(String value, int index) {
+	protected void save(String value, IValueActions actions) {
+		int index = values.indexOf(actions);
+		if(index == -1) return;
 		currentValues.set(index, value);
 	}
 	
@@ -89,7 +91,7 @@ public class CarbonArray implements IArrayNode, IValueActions
 	
 	@Override
 	public void save() {
-		saveAction.accept(Helpers.mergeCompoundArray(currentValues, false, 0));
+		saveAction.accept(Helpers.mergeCompoundArray(currentValues, false, 0), this);
 	}
 	
 	@Override

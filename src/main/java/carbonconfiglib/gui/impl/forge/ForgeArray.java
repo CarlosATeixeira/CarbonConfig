@@ -51,9 +51,14 @@ public class ForgeArray implements IArrayNode
 	protected void reload() {
 		values.clear();
 		for(int i = 0;i<currentValues.size();i++) {
-			int index = i;
-			values.add(new ForgeValue(name, tooltip, mode, type, currentValues.get(i), i >= defaults.size() ? null : defaults.get(i), () -> ObjectLists.empty(), isValid::apply, T -> currentValues.set(index, T)));
+			values.add(new ForgeValue(name, tooltip, mode, type, currentValues.get(i), i >= defaults.size() ? null : defaults.get(i), () -> ObjectLists.empty(), isValid::apply, this::save));
 		}
+	}
+	
+	private void save(String value, ForgeValue entry) {
+		int index = values.indexOf(entry);
+		if(index == -1) return;
+		currentValues.set(index, value);
 	}
 	
 	protected List<String> getPrev() {
@@ -141,10 +146,9 @@ public class ForgeArray implements IArrayNode
 	
 	@Override
 	public void createNode() {
-		int index = currentValues.size();
 		String value = defaults.isEmpty() ? type.getDefaultValue() : defaults.get(0);
 		currentValues.add(value);
-		values.add(new ForgeValue(name, tooltip, mode, type, value, null, () -> ObjectLists.empty(), isValid::apply, T -> currentValues.set(index, T)));
+		values.add(new ForgeValue(name, tooltip, mode, type, value, null, () -> ObjectLists.empty(), isValid::apply, this::save));
 	}
 	
 	@Override
