@@ -51,7 +51,7 @@ public class ConfigLeaf implements IConfigNode
 		return value;
 	}
 	
-	private void save(String value) {
+	private void save(String value, IValueActions actions) {
 		if(entry instanceof ParsedArray) {
 			entry.deserializeValue(Helpers.removeLayer(value, 0));
 			return;

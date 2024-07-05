@@ -2,7 +2,7 @@ package carbonconfiglib.gui.impl.carbon;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,13 +27,13 @@ public class CarbonValue implements IValueNode, IValueActions
 	Supplier<List<Suggestion>> suggestions;
 	
 	Function<String, ParseResult<Boolean>> isValid;
-	Consumer<String> saveAction;
+	BiConsumer<String, IValueActions> saveAction;
 	
 	Stack<String> previous = new ObjectArrayList<>();
 	String current;
 	String defaultValue;
 	
-	public CarbonValue(IReloadMode mode, IChatComponent name, IChatComponent tooltip, DataType type, boolean forced, Supplier<List<Suggestion>> suggestions, String current, String defaultValue, Function<String, ParseResult<Boolean>> isValid, Consumer<String> saveAction) {
+	public CarbonValue(IReloadMode mode, IChatComponent name, IChatComponent tooltip, DataType type, boolean forced, Supplier<List<Suggestion>> suggestions, String current, String defaultValue, Function<String, ParseResult<Boolean>> isValid, BiConsumer<String, IValueActions> saveAction) {
 		this.mode = mode;
 		this.name = name;
 		this.tooltip = tooltip;
@@ -47,7 +47,7 @@ public class CarbonValue implements IValueNode, IValueActions
 		previous.push(current);
 	}
 
-	public void save() { saveAction.accept(current); }
+	public void save() { saveAction.accept(current, this); }
 	@Override
 	public boolean isDefault() { return Objects.equals(defaultValue, current); }
 	@Override
