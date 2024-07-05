@@ -12,6 +12,7 @@ import carbonconfiglib.gui.api.IConfigNode;
 import carbonconfiglib.gui.api.INode;
 import carbonconfiglib.gui.impl.forge.ForgeDataType.EnumDataType;
 import carbonconfiglib.impl.ReloadMode;
+import carbonconfiglib.utils.ParseResult;
 import carbonconfiglib.utils.structure.IStructuredData.StructureType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -69,7 +70,8 @@ public class ForgeLeaf implements IConfigNode
 		type = ForgeDataType.getDataByType(clz);
 		if(type == null && clz != null && List.class.isAssignableFrom(clz)) {
 			isArray = true;
-			type = ForgeDataType.STRING;
+			List<?> list = (List<?>)spec.getDefault();
+			type = list.isEmpty() ? ForgeDataType.STRING : ForgeDataType.getDataByType(list.get(0).getClass());
 		}
 	}
 	
@@ -79,7 +81,7 @@ public class ForgeLeaf implements IConfigNode
 	@Override
 	public INode asNode() {
 		if(isArray) {
-			if(array == null) array = new ForgeArray(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrent(), getDefault(), () -> ObjectLists.empty(), type::parse, this::save);
+			if(array == null) array = new ForgeArray(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrentList(type), getDefaultList(type), () -> ObjectLists.empty(), type::parse, this::save);
 			return array;
 		}
 		if(value == null) value = new ForgeValue(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrent(type), getDefault(type), this::getSuggestions, type::parse, this::save);
@@ -87,13 +89,30 @@ public class ForgeLeaf implements IConfigNode
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<String> getDefault() {
-		return new ObjectArrayList<>((List<String>)spec.getDefault());
+	private <T> List<String> getDefaultList(ForgeDataType<T> type) {
+		List<String> list = new ObjectArrayList<>();
+		for(T data : (List<T>)spec.getDefault()) {
+			list.add(type.serialize(data));
+		}
+		return list;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<String> getCurrent() {
-		return new ObjectArrayList<>((List<String>)config.get(data.getPath()));
+	private <T> List<String> getCurrentList(ForgeDataType<T> type) {
+		List<String> list = new ObjectArrayList<>();
+		for(T data : (List<T>)config.get(data.getPath())) {
+			list.add(type.serialize(data));
+		}
+		return list;
+	}
+	
+	private <T> List<T> deserialize(List<String> list, ForgeDataType<T> type) {
+		List<T> result = new ObjectArrayList<>();
+		for(String entry : list) {
+			ParseResult<T> parse = type.parse(entry);
+			if(parse.isValid()) result.add(parse.getValue());
+		}
+		return result;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -109,12 +128,12 @@ public class ForgeLeaf implements IConfigNode
 		return type instanceof EnumDataType ? ((EnumDataType<?>)type).getSuggestions(spec) : ObjectLists.empty();
 	}
 	
-	private void save(String value) {
+	private void save(String value, ForgeValue entry) {
 		config.set(data.getPath(), type.parse(value).getValue());
 	}
 	
 	private void save(List<String> values) {
-		config.set(data.getPath(), values);
+		config.set(data.getPath(), deserialize(values, type));
 	}
 	
 	@Override
