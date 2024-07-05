@@ -2,7 +2,7 @@ package carbonconfiglib.gui.impl.forge;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -38,13 +38,13 @@ public class ForgeValue implements IValueNode
 	ReloadMode mode;
 	Function<String, ParseResult<?>> isValid;
 	Supplier<List<Suggestion>> suggestions;
-	Consumer<String> saved;	
+	BiConsumer<String, ForgeValue> saved;	
 	
 	ObjectArrayList<String> previous = new ObjectArrayList<>();
 	String current;
 	String defaultValue;
 	
-	public ForgeValue(IChatComponent name, IChatComponent tooltip, ReloadMode mode, DataType type, String value, String defaultValue, Supplier<List<Suggestion>> suggestions, Function<String, ParseResult<?>> isValid, Consumer<String> saved) {
+	public ForgeValue(IChatComponent name, IChatComponent tooltip, ReloadMode mode, DataType type, String value, String defaultValue, Supplier<List<Suggestion>> suggestions, Function<String, ParseResult<?>> isValid, BiConsumer<String, ForgeValue> saved) {
 		this.name = name;
 		this.tooltip = tooltip;
 		this.isValid = isValid;
@@ -57,7 +57,7 @@ public class ForgeValue implements IValueNode
 		this.saved = saved;
 	}
 
-	public void save() { saved.accept(current); }
+	public void save() { saved.accept(current, this); }
 	@Override
 	public boolean isDefault() { return Objects.equals(defaultValue, current); }
 	@Override

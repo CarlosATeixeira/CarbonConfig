@@ -58,7 +58,7 @@ public class ForgeLeaf implements IConfigNode
 			if(array == null) array = new ForgeArray(getName(), getTooltip(), getMode(), fromType(property.getType()), new ObjectArrayList<>(property.getStringList()), new ObjectArrayList<>(property.getDefaults()), () -> getValidValues(), this::isValid, T -> property.setValues(T.toArray(new String[T.size()])));
 			return array;
 		}
-		if(value == null) value = new ForgeValue(getName(), getTooltip(), getMode(), fromType(property.getType()), property.getString(), property.getDefault(), () -> getValidValues(), this::isValid, property::set);
+		if(value == null) value = new ForgeValue(getName(), getTooltip(), getMode(), fromType(property.getType()), property.getString(), property.getDefault(), () -> getValidValues(), this::isValid, (K, V) -> property.set(K));
 		return value;
 	}
 	
