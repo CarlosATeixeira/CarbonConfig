@@ -1,14 +1,18 @@
 package carbonconfiglib.gui.impl.forge;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 
 import carbonconfiglib.utils.Helpers;
 import carbonconfiglib.utils.ParseResult;
-import net.neoforged.fml.config.IConfigEvent;
+import net.neoforged.fml.config.ConfigTracker;
+import net.neoforged.fml.config.IConfigSpec.ILoadedConfig;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.ModConfigSpec.Range;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 
@@ -34,10 +38,13 @@ public class ForgeHelpers
 		data.configFormat().createWriter().write(data, path, WritingMode.REPLACE);
 	}
 	
-	public static void saveConfig(CommentedConfig data, ModConfig config) {
-		config.getConfigData().putAll(data);
+	public static void saveConfig(CommentedConfig data, ILoadedConfig config) {
+		config.config().putAll(data);
 		config.save();
-		IConfigEvent.reloading(config).post();
+	}
+	
+	public static Map<String, List<ModConfig>> getConfigs() {
+		return ObfuscationReflectionHelper.getPrivateValue(ConfigTracker.class, ConfigTracker.INSTANCE, "configsByMod");
 	}
 	
 	public static ParseResult<Boolean> parseBoolean(String value) {

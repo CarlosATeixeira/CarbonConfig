@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.util.UUID;
 
 import carbonconfiglib.CarbonConfig;
+import carbonconfiglib.gui.impl.forge.ForgeHelpers;
 import carbonconfiglib.networking.ICarbonPacket;
 import carbonconfiglib.networking.carbon.ConfigAnswerPacket;
 import io.netty.buffer.Unpooled;
@@ -11,8 +12,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.config.ConfigTracker;
 import net.neoforged.fml.config.ModConfig;
+import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -36,23 +37,27 @@ public class RequestConfigPacket implements ICarbonPacket
 	ModConfig.Type type;
 	UUID requestId;
 	String modId;
+	String fileName;
 	
-	public RequestConfigPacket(ModConfig.Type type, UUID requestId, String modId) {
+	public RequestConfigPacket(ModConfig.Type type, UUID requestId, String modId, String fileName) {
 		this.type = type;
 		this.requestId = requestId;
 		this.modId = modId;
+		this.fileName = fileName;
 	}
 	
 	public RequestConfigPacket(FriendlyByteBuf buffer) {
 		type = buffer.readEnum(ModConfig.Type.class);
 		requestId = buffer.readUUID();
 		modId = buffer.readUtf(32767);
+		fileName = buffer.readUtf(32767);
 	}
 	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeEnum(type);
 		buffer.writeUUID(requestId);
 		buffer.writeUtf(modId, 32767);
+		buffer.writeUtf(fileName, 32767);
 	}
 	
 	@Override
@@ -85,8 +90,8 @@ public class RequestConfigPacket implements ICarbonPacket
 	}
 	
 	private ModConfig findConfig() {
-		for(ModConfig config : ConfigTracker.INSTANCE.configSets().get(type)) {
-			if(modId.equalsIgnoreCase(config.getModId())) return config;
+		for(ModConfig config : ForgeHelpers.getConfigs().getOrDefault(modId, ObjectLists.empty())) {
+			if(config.getType() == type && fileName.equals(config.getFileName())) return config;
 		}
 		return null;
 	}

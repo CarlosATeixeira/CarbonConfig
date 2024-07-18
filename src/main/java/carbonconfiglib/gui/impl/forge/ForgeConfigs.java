@@ -1,6 +1,5 @@
 package carbonconfiglib.gui.impl.forge;
 
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,13 +9,13 @@ import carbonconfiglib.gui.api.BackgroundTexture.BackgroundHolder;
 import carbonconfiglib.gui.api.IModConfig;
 import carbonconfiglib.gui.api.IModConfigs;
 import carbonconfiglib.impl.internal.ModConfigs;
-import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.moddiscovery.ModInfo;
-import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforgespi.language.IModInfo;
+import speiger.src.collections.objects.lists.ObjectArrayList;
+import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -36,13 +35,13 @@ import net.neoforged.neoforgespi.language.IModInfo;
 public class ForgeConfigs implements IModConfigs
 {
 	ModContainer container;
-	EnumMap<ModConfig.Type, ModConfig> configs;
+	List<ModConfig> configs;
 	
 	public ForgeConfigs(ModContainer container) {
 		this.container = container;
-		configs = ObfuscationReflectionHelper.getPrivateValue(ModContainer.class, container, "configs");
+		configs = ForgeHelpers.getConfigs().getOrDefault(container.getModId(), ObjectLists.empty());
 	}
-	
+		
 	public boolean hasConfigs() {
 		return !configs.isEmpty();
 	}
@@ -54,8 +53,14 @@ public class ForgeConfigs implements IModConfigs
 	
 	@Override
 	public List<IModConfig> getConfigInstances(ConfigType type) {
-		ModConfig config = configs.get(fromType(type));
-		return config == null ? ObjectLists.emptyList() : ObjectLists.singleton(new ForgeConfig(config));
+		ModConfig.Type value = fromType(type);
+		List<IModConfig> configs = new ObjectArrayList<>();
+		for(ModConfig config : this.configs) {
+			if(config.getType() == value) {
+				configs.add(new ForgeConfig(config));
+			}
+		}
+		return configs;
 	}
 	
 	@Override

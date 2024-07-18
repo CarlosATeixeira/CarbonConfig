@@ -57,7 +57,7 @@ repositories {
 
 
 dependencies {
-    implementation "net.neoforged:neoforge:21.0.31-beta"
+    implementation "net.neoforged:neoforge:21.0.101-beta"
 	implementation ':Primitive Collections-0.8.9'
 	jarJar(group: 'com.github.Speiger', name: 'Primitive Collections', version: '[0.8,0.9)') {
 	 	jarJar.pin(it, "0.8.9")
@@ -79,6 +79,10 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+test {
+	exclude 'carbonconfiglib/**'
 }
 
 

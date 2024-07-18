@@ -12,8 +12,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.config.ConfigTracker;
+import net.neoforged.fml.config.IConfigSpec.ILoadedConfig;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
  * Copyright 2023 Speiger, Meduris
@@ -36,23 +38,27 @@ public class SaveForgeConfigPacket implements ICarbonPacket
 	public static final CustomPacketPayload.Type<SaveForgeConfigPacket> ID = ICarbonPacket.createType("carbonconfig:save_neo");
 	ModConfig.Type type;
 	String modId;
+	String fileName;
 	byte[] data;
 	
-	public SaveForgeConfigPacket(ModConfig.Type type, String modId, byte[] data) {
+	public SaveForgeConfigPacket(ModConfig.Type type, String modId, String fileName, byte[] data) {
 		this.type = type;
 		this.modId = modId;
+		this.fileName = fileName;
 		this.data = data;
 	}
 	
 	public SaveForgeConfigPacket(FriendlyByteBuf buffer) {
 		type = buffer.readEnum(ModConfig.Type.class);
 		modId = buffer.readUtf(32767);
+		fileName = buffer.readUtf(32767);
 		data = buffer.readByteArray();
 	}
 	
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeEnum(type);
 		buffer.writeUtf(modId, 32767);
+		buffer.writeUtf(fileName, 32767);
 		buffer.writeByteArray(data);
 	}
 	
@@ -66,13 +72,14 @@ public class SaveForgeConfigPacket implements ICarbonPacket
 		}
 		ModConfig config = findConfig();
 		if(config == null) return;
-		ForgeHelpers.saveConfig(TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data)), config);
+		ILoadedConfig loaded = ObfuscationReflectionHelper.getPrivateValue(ModConfig.class, config, "loadedConfig");
+		ForgeHelpers.saveConfig(TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data)), loaded);
 		CarbonConfig.LOGGER.info("Saved ["+modId+"] "+Helpers.firstLetterUppercase(type.extension())+" Config");
 	}
 	
 	private ModConfig findConfig() {
-		for(ModConfig config : ConfigTracker.INSTANCE.configSets().get(type)) {
-			if(modId.equalsIgnoreCase(config.getModId())) return config;
+		for(ModConfig config : ForgeHelpers.getConfigs().getOrDefault(modId, ObjectLists.empty())) {
+			if(config.getType() == type && fileName.equals(config.getFileName())) return config;
 		}
 		return null;
 	}

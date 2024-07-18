@@ -30,9 +30,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
-import net.neoforged.fml.config.IConfigEvent;
+import net.neoforged.fml.config.IConfigSpec.ILoadedConfig;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.config.ModConfig.Type;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
 
@@ -55,6 +56,7 @@ public class ForgeConfig implements IModConfig
 {
 	ModConfig config;
 	ModConfigSpec spec;
+	ILoadedConfig loaded;
 	CommentedConfig data;
 	List<ConfigValue<?>> entries;
 	Path path;
@@ -62,7 +64,8 @@ public class ForgeConfig implements IModConfig
 	public ForgeConfig(ModConfig config) {
 		this.config = config;
 		spec = (ModConfigSpec)config.getSpec();
-		data = config.getConfigData();
+		loaded = ObfuscationReflectionHelper.getPrivateValue(ModConfig.class, config, "loadedConfig");
+		data = loaded != null ? loaded.config() : null;
 		entries = collect();
 	}
 	
@@ -124,9 +127,16 @@ public class ForgeConfig implements IModConfig
 		if(data == null) return true;
 		for(int i = 0,m=entries.size();i<m;i++) {
 			ConfigValue<?> entry = entries.get(i);
-			if(!Objects.equals(entry.getDefault(), data.get(entry.getPath()))) return false;
+			if(!eqauls(entry.getDefault(), data.get(entry.getPath()))) return false;
 		}
 		return true;
+	}
+	
+	private boolean eqauls(Object defaultValue, Object value) {
+		if(defaultValue.getClass().isEnum() && value instanceof String) {
+			return ((Enum<?>)defaultValue).name().equals(value);
+		}
+		return Objects.equals(defaultValue, value);
 	}
 	
 	@Override
@@ -158,20 +168,18 @@ public class ForgeConfig implements IModConfig
 	@Override
 	public IModConfig loadFromNetworking(UUID requestId, Consumer<Predicate<FriendlyByteBuf>> network) {
 		NetworkForgeConfig config = new NetworkForgeConfig(this.config);
-		CarbonConfig.NETWORK.sendToServer(new RequestConfigPacket(this.config.getType(), requestId, this.config.getModId()));
+		CarbonConfig.NETWORK.sendToServer(new RequestConfigPacket(this.config.getType(), requestId, this.config.getModId(), config.getFileName()));
 		network.accept(config);
 		return config;
 	}
 	
 	@Override
 	public void save() {
-		if(path != null) {
+		if(loaded == null) {
 			ForgeHelpers.saveConfig(path, data);
 			return;
 		}
-		config.save();
-        config.getSpec().afterReload();
-        IConfigEvent.reloading(config).post();
+		loaded.save();
 	}
 	
 	private List<ConfigValue<?>> collect() {
@@ -229,7 +237,7 @@ public class ForgeConfig implements IModConfig
 		public void save() {
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			data.configFormat().createWriter().write(data, stream);
-			CarbonConfig.NETWORK.sendToServer(new SaveForgeConfigPacket(config.getType(), config.getModId(), stream.toByteArray()));
+			CarbonConfig.NETWORK.sendToServer(new SaveForgeConfigPacket(config.getType(), config.getModId(), config.getFileName(), stream.toByteArray()));
 		}
 		
 		@Override

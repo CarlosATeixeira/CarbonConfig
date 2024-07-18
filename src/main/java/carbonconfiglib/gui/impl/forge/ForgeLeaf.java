@@ -204,7 +204,7 @@ public class ForgeLeaf implements IConfigNode
 	}
 	
 	private ValueSpec getSpec(ModConfigSpec spec, ConfigValue<?> value) {
-		return spec.get(value.getPath());
+		return spec.getSpec().get(value.getPath());
 	}
 	
 	/**
