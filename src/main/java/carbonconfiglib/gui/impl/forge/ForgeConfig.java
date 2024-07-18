@@ -180,6 +180,7 @@ public class ForgeConfig implements IModConfig
 			return;
 		}
 		loaded.save();
+		spec.afterReload();
 	}
 	
 	private List<ConfigValue<?>> collect() {

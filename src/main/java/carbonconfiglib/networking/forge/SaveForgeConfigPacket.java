@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.config.IConfigSpec.ILoadedConfig;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import speiger.src.collections.objects.utils.ObjectLists;
 
 /**
@@ -74,6 +75,7 @@ public class SaveForgeConfigPacket implements ICarbonPacket
 		if(config == null) return;
 		ILoadedConfig loaded = ObfuscationReflectionHelper.getPrivateValue(ModConfig.class, config, "loadedConfig");
 		ForgeHelpers.saveConfig(TomlFormat.instance().createParser().parse(new ByteArrayInputStream(data)), loaded);
+		((ModConfigSpec)config.getSpec()).afterReload();
 		CarbonConfig.LOGGER.info("Saved ["+modId+"] "+Helpers.firstLetterUppercase(type.extension())+" Config");
 	}
 	
