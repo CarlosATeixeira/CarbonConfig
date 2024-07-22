@@ -74,6 +74,7 @@ public class CarbonConfig
 	public static BooleanSupplier MOD_GUI = () -> false;
 	ConfigHandler handler;
 	public static BoolValue FORGE_SUPPORT; 
+	public static BoolValue OVERWRITE_FORGE;
 	public static BoolValue FORCE_CUSTOM_BACKGROUND;
 	public static EnumValue<BackgroundTypes> BACKGROUNDS;
 	public static BoolValue INGAME_BACKGROUND;
@@ -97,6 +98,13 @@ public class CarbonConfig
 			FORCE_CUSTOM_BACKGROUND = section.addBool("force-custom-background", false, "Allows to force your Selected Background to be used everywhere instead of just default Backgrounds");
 			INGAME_BACKGROUND = section.addBool("ingame-background", false, "Allows to set if the background is always visible or only if you are not in a active world");
 			SHOW_MISSING_ENCHANTMENT_TEXTURE = section.addBool("show-missing-texture", true, "Enables that if enchantments are not accessible that missing textures will be shown instead of nothing");
+			OVERWRITE_FORGE = section.addBool("overwrite-neoforge-config-guis", true, 
+					"Enables that Forge Config GUIs get overwritten by Carbon", 
+					"This has a couple upsides such as:", 
+					"\t- You can edit world specific configs without opening them", 
+					"\t- Edit Multiplayer Configs inside servers (assuming permission)",
+					"\t- And Edit Server sided Common Configs (assuming permissions)",
+					"\tOn top of the bigger customization.");
 			handler = CONFIGS.createConfig(config, ConfigSettings.withConfigType(ConfigType.CLIENT).withAutomations(AutomationType.AUTO_LOAD));
 			handler.register();
 		}

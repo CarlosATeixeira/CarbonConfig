@@ -42,6 +42,7 @@ import net.neoforged.fml.mclanguageprovider.MinecraftModContainer;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingIn;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -137,7 +138,7 @@ public class EventHandler implements IConfigChangeListener
 		});
 		if(CarbonConfig.FORGE_SUPPORT.get()) {
 			ModList.get().forEachModInOrder(T-> {
-				if(T.getCustomExtension(IConfigScreenFactory.class).isEmpty()) {
+				if(T.getCustomExtension(IConfigScreenFactory.class).isEmpty() || isForgeGui(T)) {
 					ForgeConfigs configs = new ForgeConfigs(T);
 					if(configs.hasConfigs()) {
 						mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(configs);						
@@ -145,15 +146,26 @@ public class EventHandler implements IConfigChangeListener
 					else if(T instanceof MinecraftModContainer) {
 						mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(new MinecraftConfigs());
 					}
-				};
+				}
 			});
 		}
 		mappedConfigs.forEach(this::register);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
+	private boolean isForgeGui(ModContainer container) {
+		if(!CarbonConfig.OVERWRITE_FORGE.get()) return false;
+		try
+		{
+			return ConfigurationScreen.class.isAssignableFrom(container.getCustomExtension(IConfigScreenFactory.class).get().createScreen(container, null).getClass());
+		}
+		catch(Throwable e) {}
+		return false;
+	}
+	
+	@OnlyIn(Dist.CLIENT)
 	private void register(ModContainer container, List<IModConfigs> configs) {
-		container.registerExtensionPoint(IConfigScreenFactory.class, new Wrapper(container, configs));
+		container.registerExtensionPoint(IConfigScreenFactory.class, new Wrapper(configs));
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -223,20 +235,15 @@ public class EventHandler implements IConfigChangeListener
 	
 	@OnlyIn(Dist.CLIENT)
 	private class Wrapper implements IConfigScreenFactory {
-		ModContainer container;
 		List<IModConfigs> configs;
 		
-		public Wrapper(ModContainer container, List<IModConfigs> configs) {
-			this.container = container;
+		public Wrapper(List<IModConfigs> configs) {
 			this.configs = configs;
 		}
 
-
-
-
 		@Override
-		public Screen createScreen(Minecraft minecraft, Screen screen) {
-			return new ConfigSelectorScreen(ModConfigList.createMultiIfApplicable(container, configs), screen);
+		public Screen createScreen(ModContainer container, Screen modListScreen){
+			return new ConfigSelectorScreen(ModConfigList.createMultiIfApplicable(container, configs), modListScreen);
 		}
 		
 	}
