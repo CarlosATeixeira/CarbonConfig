@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.RestartType;
 import net.neoforged.neoforge.common.ModConfigSpec.ValueSpec;
 import speiger.src.collections.objects.lists.ObjectArrayList;
 import speiger.src.collections.objects.utils.ObjectLists;
@@ -85,11 +86,19 @@ public class ForgeLeaf implements IConfigNode
 	@Override
 	public INode asNode() {
 		if(isArray) {
-			if(array == null) array = new ForgeArray(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrentList(type), getDefaultList(type), () -> ObjectLists.empty(), type::parse, this::save);
+			if(array == null) array = new ForgeArray(getName(), getTooltip(), toReloadMode(), type.getDataType(), getCurrentList(type), getDefaultList(type), () -> ObjectLists.empty(), type::parse, this::save);
 			return array;
 		}
-		if(value == null) value = new ForgeValue(getName(), getTooltip(), spec.needsWorldRestart() ? ReloadMode.WORLD : null, type.getDataType(), getCurrent(type), getDefault(type), this::getSuggestions, type::parse, this::save);
+		if(value == null) value = new ForgeValue(getName(), getTooltip(), toReloadMode(), type.getDataType(), getCurrent(type), getDefault(type), this::getSuggestions, type::parse, this::save);
 		return value;
+	}
+	
+	protected ReloadMode toReloadMode() {
+		return switch(spec.restartType()) {
+			case WORLD -> ReloadMode.WORLD;
+			case GAME -> ReloadMode.GAME;
+			case NONE -> null;
+		};
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -179,9 +188,9 @@ public class ForgeLeaf implements IConfigNode
 	}
 	
 	@Override
-	public boolean requiresRestart() { return false; }
+	public boolean requiresRestart() { return spec.restartType() == RestartType.GAME; }
 	@Override
-	public boolean requiresReload() { return spec.needsWorldRestart(); }
+	public boolean requiresReload() { return spec.restartType() == RestartType.WORLD; }
 	@Override
 	public String getNodeName() { return null; }
 	@Override

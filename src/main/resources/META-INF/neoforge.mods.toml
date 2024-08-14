@@ -15,7 +15,7 @@ license="Apache-2.0"
 	[[dependencies.carbonconfig]]
 		modId="neoforge"
 		required=true
-		versionRange="[21.0.110,)"
+		versionRange="[21.0.143,)"
 		ordering="NONE"
 		side="BOTH"
 	[[dependencies.carbonconfig]]
