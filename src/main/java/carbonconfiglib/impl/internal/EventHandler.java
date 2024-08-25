@@ -138,14 +138,12 @@ public class EventHandler implements IConfigChangeListener
 		});
 		if(CarbonConfig.FORGE_SUPPORT.get()) {
 			ModList.get().forEachModInOrder(T-> {
-				if(T.getCustomExtension(IConfigScreenFactory.class).isEmpty() || isForgeGui(T)) {
-					ForgeConfigs configs = new ForgeConfigs(T);
-					if(configs.hasConfigs()) {
-						mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(configs);						
-					}
-					else if(T instanceof MinecraftModContainer) {
-						mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(new MinecraftConfigs());
-					}
+				ForgeConfigs configs = new ForgeConfigs(T);
+				if(configs.hasConfigs()) {
+					mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(configs);						
+				}
+				else if(T instanceof MinecraftModContainer) {
+					mappedConfigs.supplyIfAbsent(T, ObjectArrayList::new).add(new MinecraftConfigs());
 				}
 			});
 		}
@@ -153,19 +151,8 @@ public class EventHandler implements IConfigChangeListener
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	private boolean isForgeGui(ModContainer container) {
-		if(!CarbonConfig.OVERWRITE_FORGE.get()) return false;
-		try
-		{
-			return ConfigurationScreen.class.isAssignableFrom(container.getCustomExtension(IConfigScreenFactory.class).get().createScreen(container, null).getClass());
-		}
-		catch(Throwable e) {}
-		return false;
-	}
-	
-	@OnlyIn(Dist.CLIENT)
 	private void register(ModContainer container, List<IModConfigs> configs) {
-		container.registerExtensionPoint(IConfigScreenFactory.class, new Wrapper(configs));
+		container.registerExtensionPoint(IConfigScreenFactory.class, new Wrapper(configs, container.getCustomExtension(IConfigScreenFactory.class).orElse(null)));
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -236,15 +223,23 @@ public class EventHandler implements IConfigChangeListener
 	@OnlyIn(Dist.CLIENT)
 	private class Wrapper implements IConfigScreenFactory {
 		List<IModConfigs> configs;
+		IConfigScreenFactory factory;
 		
-		public Wrapper(List<IModConfigs> configs) {
+		public Wrapper(List<IModConfigs> configs, IConfigScreenFactory factory) {
 			this.configs = configs;
+			this.factory = factory;
 		}
 
 		@Override
-		public Screen createScreen(ModContainer container, Screen modListScreen){
-			return new ConfigSelectorScreen(ModConfigList.createMultiIfApplicable(container, configs), modListScreen);
+		public Screen createScreen(ModContainer container, Screen modListScreen) {
+			Screen owner = factory == null ? null : factory.createScreen(container, modListScreen);
+			return isForgeGui(owner) ? new ConfigSelectorScreen(ModConfigList.createMultiIfApplicable(container, configs), modListScreen) : owner;
 		}
 		
+		private boolean isForgeGui(Screen screen) {
+			if(screen == null) return true;
+			if(!CarbonConfig.OVERWRITE_FORGE.get()) return false;
+			return ConfigurationScreen.class.isInstance(screen);
+		}
 	}
 }
